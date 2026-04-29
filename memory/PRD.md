@@ -22,6 +22,13 @@ Build a premium luxury website + admin dashboard for "Fashion Interior" — a Ko
 - Frontend: full marketing site + admin dashboard with all 5 sub-pages, page loader, custom cursor, scroll progress, mobile hamburger, sticky frosted navbar, masonry portfolio + lightbox, infinite testimonial marquee, floating-label contact form with success state, WhatsApp FAB, branded footer.
 - Tests: `/app/backend/tests/backend_test.py` (19/20 pass; reset-password bug fixed Dec 2025).
 
+## Enhancement pack 1 (Dec 2025) — all 4 next-action items shipped
+- **Resend live**: `RESEND_API_KEY` configured. Branded HTML reset emails are now actually delivered. Sender: `Fashion Interior <onboarding@resend.dev>` (Resend test sender, no domain verification needed).
+- **Admin email switched** to `chakrabortyi048@gmail.com` (the inbox the user signed up to Resend with — Resend test mode only delivers there).
+- **Image upload in Portfolio Manager**: new `/api/admin/upload` endpoint (12MB cap, PNG/JPG/WebP/GIF) → file saved to `/app/backend/uploads/` → served via `app.mount("/api/uploads", StaticFiles(...))`. Admin form now has an "Upload Image" button beside the URL field; once uploaded the URL is auto-filled.
+- **SEO**: `<head>` rewritten with `<title>`, meta description/keywords, Open Graph, Twitter card, canonical, and a complete `LocalBusiness`/`HomeAndConstructionBusiness` JSON-LD (address, phone +91-9007855295, openingHours 09:15–20:30 daily, geo, aggregateRating 5.0/25, hasOfferCatalog with all 13 services). `/robots.txt` (disallows `/admin`) and `/sitemap.xml` published.
+- **Lead notification email**: every contact-form submission now triggers a fire-and-forget Resend email to `NOTIFY_EMAIL` (= admin email). Branded HTML template with name / phone / email / service / message / Call-back + WhatsApp CTA buttons. 31/31 backend tests pass.
+
 ## Backlog / Next
 - **P0**: Configure `RESEND_API_KEY` so reset emails actually deliver. (User can paste key into `/app/backend/.env` and `sudo supervisorctl restart backend`.)
 - **P1**: Add image upload (file → object storage → URL) inside Portfolio Manager so the admin doesn't have to paste image URLs.
