@@ -1,0 +1,160 @@
+{
+  "project_name": "Fashion Interior",
+  "domain": "Interior Design / Luxury Home Decor",
+  "theme": "Hybrid (Light Content with Dark Cinematic Sections)",
+  "archetype": "Archetype 5: Jewel & Luxury",
+  "vibe": "Cinematic, editorial, deeply modern, high-end luxury brand (₹5,00,000+ agency feel)",
+  "colors": {
+    "primary": {
+      "name": "Muted Gold",
+      "hex": "#CBA153",
+      "usage": "Primary CTAs, accents, hover states, icons, and subtle borders. Provides the luxury feel without being overwhelmingly shiny."
+    },
+    "background_light": {
+      "name": "Warm Off-White",
+      "hex": "#F9F8F6",
+      "usage": "Primary background for content-heavy sections like About, Services, Portfolio, Contact."
+    },
+    "background_dark": {
+      "name": "Deep Charcoal",
+      "hex": "#161616",
+      "usage": "Hero section, Footer, Admin Sidebar, and alternate dark thematic sections. Use heavy contrast."
+    },
+    "text_primary_light": {
+      "name": "Charcoal Text",
+      "hex": "#1A1A1A",
+      "usage": "Headings and body text on light backgrounds."
+    },
+    "text_primary_dark": {
+      "name": "Off-White Text",
+      "hex": "#F9F8F6",
+      "usage": "Headings and body text on dark backgrounds."
+    },
+    "text_muted": {
+      "name": "Muted Gray",
+      "hex": "#737373",
+      "usage": "Secondary text, overlines, placeholders."
+    },
+    "border_light": {
+      "name": "Subtle Gold/Gray",
+      "hex": "rgba(203, 161, 83, 0.2)",
+      "usage": "Dividers and card borders on light theme."
+    },
+    "border_dark": {
+      "name": "Dark Glass Border",
+      "hex": "rgba(255, 255, 255, 0.1)",
+      "usage": "Dividers, glassmorphism borders on dark theme."
+    }
+  },
+  "typography": {
+    "primary_font": {
+      "family": "Playfair Display",
+      "type": "serif",
+      "usage": "H1, H2, H3 (Hero, Section Titles, Modal Titles). Must use tracking-tight and leading-none/tight."
+    },
+    "secondary_font": {
+      "family": "Inter",
+      "type": "sans-serif",
+      "usage": "H4, Body Text, Buttons, Navigation, Admin Dashboard, Overlines (Uppercase + wide tracking)."
+    },
+    "scale": {
+      "h1": "text-5xl md:text-6xl lg:text-7xl font-normal tracking-tighter",
+      "h2": "text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight",
+      "h3": "text-2xl md:text-3xl lg:text-4xl font-normal",
+      "h4": "text-xl md:text-2xl font-medium tracking-tight",
+      "body_large": "text-lg md:text-xl font-light leading-relaxed",
+      "body": "text-base font-light leading-relaxed",
+      "overline": "text-xs md:text-sm font-medium uppercase tracking-[0.2em]"
+    }
+  },
+  "spacing_and_layout": {
+    "section_padding": "py-24 md:py-32 lg:py-40",
+    "container_max_width": "max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24",
+    "grid_gap": "gap-8 md:gap-12",
+    "border_radius": {
+      "cards": "rounded-2xl",
+      "buttons": "rounded-none md:rounded-sm",
+      "images": "rounded-lg"
+    }
+  },
+  "interactions_and_motion": {
+    "smooth_scroll": "Lenis for buttery smooth scrolling with a custom scroll progress bar fixed at the top (Muted Gold).",
+    "custom_cursor": "Framer Motion based custom cursor: a subtle spotlight or trailing dot that expands on hoverable elements.",
+    "page_loader": "Elegant 1-2s initial page loader with a dark background, revealing the logo or brand name in Playfair Display, fading out smoothly.",
+    "entrance_animations": "Staggered fade-up and slide-in for typography and cards as they enter the viewport using Framer Motion (whileInView).",
+    "hover_effects": "Cards have a subtle Y-axis lift (-translate-y-2) and a soft muted gold glow. Images have a slow scale effect (scale-105) inside a hidden overflow container.",
+    "parallax": "Hero background image and portfolio images should use a slight parallax scroll effect to create cinematic depth.",
+    "navbar": "Sticky header. Starts fully transparent over the hero, transitions to a frosted glass (backdrop-blur-xl bg-white/70 or bg-black/70) on scroll. Includes animated hamburger for mobile."
+  },
+  "surface_strategies": {
+    "glassmorphism": "Used for Testimonial Carousel and Navbar. Heavy blur (backdrop-blur-xl), slight white/black tint, and a delicate 1px inner stroke.",
+    "cards": "Services and Why Choose Us: Minimalist. Flat background matching the section, separated by a 1px solid subtle border, lifting on hover with a soft shadow."
+  },
+  "media": {
+    "hero": [
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/zh7h9lsp_Screenshot_2026-04-28_164511.jpg",
+        "description": "Dining room with gold floral wallpaper. Used as the main cinematic full-screen hero background."
+      }
+    ],
+    "portfolio_and_general": [
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/zh7h9lsp_Screenshot_2026-04-28_164511.jpg",
+        "description": "Dining room with gold floral wallpaper."
+      },
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/o8oeed6y_Screenshot_2026-04-28_164526.jpg",
+        "description": "Living room with chandelier."
+      },
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/y6rspc66_Screenshot_2026-04-28_164551.jpg",
+        "description": "Floral wallpaper lounge. (Can be used in About Us section)."
+      },
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/epcwhole_Screenshot_2026-04-28_164540.jpg",
+        "description": "Stone accent sunroom."
+      },
+      {
+        "url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/rtmbdojk_Screenshot_2026-04-28_164557.jpg",
+        "description": "Striped canopy showroom."
+      }
+    ],
+    "guidelines": "CRITICAL: The user explicitly stated 'ONLY client-uploaded photos, no stock' for Portfolio. Do not use any placeholder or external image links. Use the provided 5 URLs across the site for visual assets."
+  },
+  "pages_and_sections": {
+    "landing": {
+      "Hero": "Full-screen cinematic (h-screen). Background image with black/40 overlay. Parallax effect. Word-by-word animated headline (Framer Motion). Two bold CTAs.",
+      "About_Us": "Warm editorial split-layout (text on one side, image on the other). Fade-in on scroll. Animated count-up numbers for years of experience or projects completed.",
+      "Portfolio": "Masonry grid using the 5 provided client photos. Clickable items that open a full-screen Lightbox modal. Parallax scroll effect on the images.",
+      "Services": "13 animated icon cards (using lucide-react icons). Cards have hover lift and muted gold glow. Services: Wallpaper, PVC flooring, Laminates, Customised wallpaper, PVC planks, Wooden flooring, Artificial grass, Artificial planters, Blinds, Customised blinds, Glass film, PVC laminates, 3D panels.",
+      "Why_Choose_Us": "4-5 differentiators with icon + text. Grid layout. Stagger reveal on scroll.",
+      "Testimonials": "Auto-scrolling glass-morphism carousel (use Framer Motion or Swiper). Mock 24 real Google reviews. Placed on a dark or image-backed section to make the glass pop.",
+      "Contact": "Floating-label inputs for the form, smooth focus effects. Embedded Google Map. Floating WhatsApp action button (FAB) fixed to the bottom right.",
+      "Footer": "Premium dark footer (Deep Charcoal background). Large logo or 'Fashion Interior' brand mark. Essential links, social icons."
+    },
+    "admin_dashboard": {
+      "path": "/admin",
+      "vibe": "Premium clean, Archetype 4 (Swiss/High-Contrast) but utilizing brand colors. Dark sidebar (Deep Charcoal) + Light content area (Warm Off-White).",
+      "components": "Heavily use Shadcn UI (Tables, Dialogs, Inputs, Dropdowns, Tabs, Forms).",
+      "sections": [
+        "Secure Login & Forgot Password (mock Resend-branded reset email).",
+        "Overview: High-level metrics.",
+        "Portfolio Manager: Grid view to upload/edit/delete/reorder images.",
+        "Inquiries Inbox: Sortable Shadcn Table for contact submissions.",
+        "Testimonials Manager: List to add/edit reviews.",
+        "Settings: Form to change admin credentials and business info."
+      ]
+    }
+  },
+  "testing_strategy": {
+    "data_testids": "All interactive elements, buttons, form inputs, links, navigation items, and cards MUST include a descriptive data-testid attribute formatted in kebab-case (e.g., 'data-testid=\"hero-explore-button\"', 'data-testid=\"contact-submit-btn\"')."
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette: Warm Off-White, Deep Charcoal, and Muted Gold.",
+    "Use Playfair Display for headings and Inter for everything else.",
+    "Build the frontend with React, Tailwind, Framer Motion, and lucide-react.",
+    "Use Shadcn UI primarily for the Admin Dashboard and complex interactive components (like forms, modals, tables). For the marketing sections, favor raw HTML/Tailwind to allow for creative, asymmetric layouts.",
+    "Do not use any placeholder images (via.placeholder.com). Use the provided image URLs.",
+    "Implement a custom cursor, smooth scrolling, and page loader to fulfill the ₹5,00,000+ luxury build requirement."
+  ]
+}
