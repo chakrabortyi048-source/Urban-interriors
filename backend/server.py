@@ -323,7 +323,9 @@ async def admin_reset(payload: ResetIn):
     expires_at = rec.get("expires_at")
     if isinstance(expires_at, str):
         expires_at = datetime.fromisoformat(expires_at)
-    if expires_at and expires_at.replace(tzinfo=timezone.utc) if expires_at.tzinfo is None else expires_at < datetime.now(timezone.utc):
+    if expires_at is not None and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at is None or expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Token has expired")
     new_hash = hash_password(payload.new_password)
     await db.users.update_one({"id": rec["user_id"]}, {"$set": {"password_hash": new_hash}})
