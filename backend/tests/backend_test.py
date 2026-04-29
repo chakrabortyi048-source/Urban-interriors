@@ -7,8 +7,11 @@ import requests
 from pymongo import MongoClient
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://aniket-interiors.preview.emergentagent.com').rstrip('/')
-ADMIN_EMAIL = "admin@fashioninterior.com"
+ADMIN_EMAIL = "chakrabortyi048@gmail.com"
+OLD_ADMIN_EMAIL = "admin@fashioninterior.com"
 ADMIN_PASSWORD = "FashionAdmin@2025"
+NOTIFY_EMAIL = "chakrabortyi048@gmail.com"
+BACKEND_LOG = "/var/log/supervisor/backend.err.log"
 
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "fashion_interior"
@@ -295,3 +298,168 @@ class TestBusinessInfo:
                   if k in {"business_name", "address", "phone", "whatsapp", "email",
                            "hours", "instagram", "facebook", "google_maps_url"}}
         api.put(f"{BASE_URL}/api/admin/business-info", json=revert, headers=auth_headers)
+
+
+
+# --------- New email login (iteration 2) ---------
+class TestAdminEmailChange:
+    def test_old_email_fails(self, api):
+        r = api.post(f"{BASE_URL}/api/admin/login",
+                     json={"email": OLD_ADMIN_EMAIL, "password": ADMIN_PASSWORD})
+        assert r.status_code == 401
+
+    def test_new_email_works(self, api):
+        r = api.post(f"{BASE_URL}/api/admin/login",
+                     json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
+        assert r.status_code == 200
+        assert r.json()["role"] == "admin"
+
+
+# --------- Lead notification email on inquiry ---------
+class TestLeadNotification:
+    def test_inquiry_triggers_lead_email_log(self, api):
+        # snapshot log size
+        try:
+            with open(BACKEND_LOG, "rb") as f:
+                f.seek(0, 2)
+                start_pos = f.tell()
+        except FileNotFoundError:
+            pytest.skip(f"backend log not present: {BACKEND_LOG}")
+
+        unique = f"TEST_lead_{uuid.uuid4().hex[:8]}"
+        payload = {
+            "name": unique, "phone": "9999999999",
+            "email": f"{unique}@example.com",
+            "service": "Wallpaper", "message": "lead-notify TEST",
+            "callback_time": "Morning",
+        }
+        r = api.post(f"{BASE_URL}/api/inquiries", json=payload)
+        assert r.status_code == 200
+        iid = r.json()["id"]
+
+        # Wait up to ~6s for fire-and-forget log
+        new_text = ""
+        deadline = time.time() + 6
+        while time.time() < deadline:
+            with open(BACKEND_LOG, "rb") as f:
+                f.seek(start_pos)
+                new_text = f.read().decode(errors="ignore")
+            if "Lead notification sent" in new_text:
+                break
+            time.sleep(0.4)
+
+        assert "Lead notification sent" in new_text, (
+            f"Expected 'Lead notification sent' in backend log after inquiry {iid}; "
+            f"got tail: ...{new_text[-500:]}"
+        )
+        assert NOTIFY_EMAIL in new_text
+
+
+# --------- Forgot-password sends via Resend ---------
+class TestForgotPasswordResendLog:
+    def test_forgot_password_email_sent_log(self, api):
+        try:
+            with open(BACKEND_LOG, "rb") as f:
+                f.seek(0, 2)
+                start_pos = f.tell()
+        except FileNotFoundError:
+            pytest.skip("backend log missing")
+        r = api.post(f"{BASE_URL}/api/admin/forgot-password",
+                     json={"email": ADMIN_EMAIL})
+        assert r.status_code == 200
+        new_text = ""
+        deadline = time.time() + 6
+        while time.time() < deadline:
+            with open(BACKEND_LOG, "rb") as f:
+                f.seek(start_pos)
+                new_text = f.read().decode(errors="ignore")
+            if "Password reset email sent" in new_text or "reset email sent" in new_text.lower():
+                break
+            time.sleep(0.4)
+        assert ("Password reset email sent" in new_text
+                or "reset email sent" in new_text.lower()), (
+            f"Expected 'Password reset email sent' log; tail: ...{new_text[-500:]}")
+
+
+# --------- Image Upload ---------
+import io
+PNG_1x1 = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+    b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc\xf8"
+    b"\xcf\xc0\x00\x00\x00\x03\x00\x01\x5b\x82\x9d\xae\x00\x00\x00\x00"
+    b"IEND\xaeB`\x82"
+)
+
+
+class TestUpload:
+    def test_upload_no_auth(self):
+        files = {"file": ("x.png", io.BytesIO(PNG_1x1), "image/png")}
+        r = requests.post(f"{BASE_URL}/api/admin/upload", files=files)
+        assert r.status_code == 401
+
+    def test_upload_image_ok(self, auth_headers):
+        # multipart needs no Content-Type header; strip JSON header
+        h = {"Authorization": auth_headers["Authorization"]}
+        files = {"file": ("test.png", io.BytesIO(PNG_1x1), "image/png")}
+        r = requests.post(f"{BASE_URL}/api/admin/upload", files=files, headers=h)
+        assert r.status_code == 200, r.text
+        d = r.json()
+        assert "url" in d and "filename" in d and "size" in d
+        assert d["url"].startswith("https://")
+        assert "/api/uploads/" in d["url"]
+        assert d["filename"].endswith(".png")
+        assert d["size"] == len(PNG_1x1)
+        # Fetch via public StaticFiles
+        g = requests.get(d["url"])
+        assert g.status_code == 200
+        assert "image" in g.headers.get("content-type", "").lower()
+        assert g.content == PNG_1x1
+
+    def test_upload_bad_extension(self, auth_headers):
+        h = {"Authorization": auth_headers["Authorization"]}
+        files = {"file": ("bad.txt", io.BytesIO(b"hello"), "text/plain")}
+        r = requests.post(f"{BASE_URL}/api/admin/upload", files=files, headers=h)
+        assert r.status_code == 400
+        assert "Unsupported" in r.text or "unsupported" in r.text.lower()
+
+    def test_upload_empty(self, auth_headers):
+        h = {"Authorization": auth_headers["Authorization"]}
+        files = {"file": ("empty.png", io.BytesIO(b""), "image/png")}
+        r = requests.post(f"{BASE_URL}/api/admin/upload", files=files, headers=h)
+        assert r.status_code == 400
+
+
+# --------- SEO / robots / sitemap ---------
+class TestSEO:
+    def test_index_html_has_seo(self):
+        # frontend serves /index.html on the public URL
+        r = requests.get(f"{BASE_URL}/", timeout=15)
+        assert r.status_code == 200
+        html = r.text
+        assert "<title>Fashion Interior" in html
+        assert 'name="description"' in html
+        assert 'property="og:title"' in html
+        assert 'property="og:image"' in html
+        assert 'name="twitter:card"' in html
+        assert 'application/ld+json' in html
+        assert '"HomeAndConstructionBusiness"' in html
+        assert '+91-9007855295' in html
+        assert 'Rajarhat' in html
+        assert '09:15' in html and '20:30' in html
+        assert '"ratingValue": "5.0"' in html or '"ratingValue":"5.0"' in html or '"ratingValue": 5.0' in html
+        assert 'hasOfferCatalog' in html
+
+    def test_robots_txt(self):
+        r = requests.get(f"{BASE_URL}/robots.txt", timeout=15)
+        assert r.status_code == 200
+        assert "Disallow: /admin" in r.text
+
+    def test_sitemap_xml(self):
+        r = requests.get(f"{BASE_URL}/sitemap.xml", timeout=15)
+        assert r.status_code == 200
+        # parse XML
+        import xml.etree.ElementTree as ET
+        try:
+            ET.fromstring(r.text)
+        except ET.ParseError as e:
+            pytest.fail(f"sitemap.xml is not valid XML: {e}")

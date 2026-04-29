@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Plus, Trash2, Edit2, ArrowUp, ArrowDown, X, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Trash2, Edit2, ArrowUp, ArrowDown, X, Save, Upload } from "lucide-react";
 import { api, formatApiError } from "../../lib/api";
 
 const empty = { title: "", category: "", description: "", image_url: "", aspect: "portrait" };
@@ -9,6 +9,8 @@ export default function AdminPortfolio() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
 
   const load = async () => {
     try {
@@ -79,6 +81,32 @@ export default function AdminPortfolio() {
     }
   };
 
+  const onPickFile = () => fileRef.current?.click();
+
+  const onFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 12 * 1024 * 1024) {
+      setError("Image too large (max 12 MB)");
+      return;
+    }
+    setUploading(true);
+    setError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await api.post("/admin/upload", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setForm((f) => ({ ...f, image_url: data.url }));
+    } catch (err) {
+      setError(formatApiError(err.response?.data?.detail) || "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   return (
     <div data-testid="admin-portfolio">
       <div className="flex items-end justify-between mb-9 flex-wrap gap-4">
@@ -140,15 +168,43 @@ export default function AdminPortfolio() {
               />
               <label>Category *</label>
             </div>
-            <div className={`fi-field md:col-span-2 ${form.image_url ? "has-value" : ""}`}>
-              <input
-                value={form.image_url}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                required
-                placeholder=" "
-                data-testid="portfolio-form-image-url"
-              />
-              <label>Image URL *</label>
+            <div className="md:col-span-2">
+              <div className="overline mb-2" style={{ color: "#737373" }}>
+                Project Image *
+              </div>
+              <div className="flex gap-3 items-stretch flex-wrap">
+                <button
+                  type="button"
+                  onClick={onPickFile}
+                  disabled={uploading}
+                  className="btn-fi-dark"
+                  data-testid="portfolio-form-upload-btn"
+                  style={{ padding: "0.7rem 1.4rem", fontSize: "0.7rem" }}
+                >
+                  {uploading ? <span className="fi-spin" /> : <><Upload size={14} /> Upload Image</>}
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={onFileChange}
+                  data-testid="portfolio-form-file-input"
+                />
+                <div className={`fi-field flex-1 min-w-[200px] ${form.image_url ? "has-value" : ""}`}>
+                  <input
+                    value={form.image_url}
+                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                    required
+                    placeholder=" "
+                    data-testid="portfolio-form-image-url"
+                  />
+                  <label>...or paste image URL</label>
+                </div>
+              </div>
+              <p className="text-xs mt-2" style={{ color: "#737373" }}>
+                JPG, PNG, WebP or GIF · max 12 MB. Uploaded images are saved on the server and shown live on the public site.
+              </p>
             </div>
             <div className={`fi-field md:col-span-2 ${form.description ? "has-value" : ""}`}>
               <textarea

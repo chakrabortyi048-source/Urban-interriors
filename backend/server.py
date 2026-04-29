@@ -15,7 +15,8 @@ from typing import List, Optional
 import bcrypt
 import jwt
 import resend
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
@@ -29,7 +30,10 @@ ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@fashioninterior.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'FashionAdmin@2025')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '').strip()
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+NOTIFY_EMAIL = os.environ.get('NOTIFY_EMAIL', ADMIN_EMAIL).strip()
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+UPLOAD_DIR = ROOT_DIR / 'uploads'
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 JWT_ALG = "HS256"
 
 if RESEND_API_KEY:
@@ -144,6 +148,64 @@ async def send_reset_email(to_email: str, reset_link: str) -> bool:
         return True
     except Exception as e:
         logger.error(f"Resend failed: {e}. Reset link: {reset_link}")
+        return False
+
+
+def render_lead_email(inq: dict) -> str:
+    def esc(v: str) -> str:
+        return (str(v) if v is not None else "—").replace("<", "&lt;").replace(">", "&gt;")
+    return f"""
+    <!DOCTYPE html><html><body style="margin:0;padding:0;background:#161616;font-family:Inter,Arial,sans-serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#161616;padding:48px 16px;">
+        <tr><td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#1d1d1d;border-radius:12px;overflow:hidden;border:1px solid rgba(203,161,83,0.2);">
+            <tr><td style="padding:36px 40px 18px 40px;border-bottom:1px solid rgba(203,161,83,0.18);">
+              <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#CBA153;">New Inquiry</div>
+              <div style="font-family:Georgia,'Playfair Display',serif;font-size:26px;color:#F9F8F6;margin-top:8px;letter-spacing:-0.3px;">{esc(inq.get('name'))} just enquired</div>
+            </td></tr>
+            <tr><td style="padding:30px 40px;color:#F9F8F6;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#cfcfcf;">
+                <tr><td style="padding:6px 0;color:#8a8a8a;width:140px;">Phone</td><td style="padding:6px 0;"><a href="tel:{esc(inq.get('phone'))}" style="color:#CBA153;text-decoration:none;">{esc(inq.get('phone'))}</a></td></tr>
+                <tr><td style="padding:6px 0;color:#8a8a8a;">Email</td><td style="padding:6px 0;"><a href="mailto:{esc(inq.get('email'))}" style="color:#CBA153;text-decoration:none;">{esc(inq.get('email'))}</a></td></tr>
+                <tr><td style="padding:6px 0;color:#8a8a8a;">Service</td><td style="padding:6px 0;color:#F9F8F6;">{esc(inq.get('service') or '—')}</td></tr>
+                <tr><td style="padding:6px 0;color:#8a8a8a;">Callback time</td><td style="padding:6px 0;color:#F9F8F6;">{esc(inq.get('callback_time') or '—')}</td></tr>
+              </table>
+              <div style="margin-top:24px;padding:18px 20px;background:#141414;border-left:2px solid #CBA153;font-size:14px;line-height:1.7;color:#dcdcdc;white-space:pre-wrap;">{esc(inq.get('message'))}</div>
+              <div style="margin-top:28px;">
+                <a href="tel:{esc(inq.get('phone'))}" style="display:inline-block;padding:12px 24px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#161616;background:#CBA153;font-weight:600;text-decoration:none;border-radius:2px;margin-right:8px;">Call back</a>
+                <a href="https://wa.me/91{esc(inq.get('phone','')).lstrip('0').replace(' ','')}" style="display:inline-block;padding:12px 24px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#F9F8F6;border:1px solid rgba(255,255,255,0.4);font-weight:500;text-decoration:none;border-radius:2px;">WhatsApp</a>
+              </div>
+            </td></tr>
+            <tr><td style="padding:18px 40px;border-top:1px solid rgba(203,161,83,0.18);background:#141414;">
+              <div style="font-size:11px;color:#6a6a6a;line-height:1.7;">
+                Fashion Interior · Rajarhat Main Rd, Atghara, New Town, Kolkata 700136<br/>
+                Submitted at {esc(inq.get('created_at'))}
+              </div>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
+    </body></html>
+    """
+
+
+async def send_lead_email(inq: dict) -> bool:
+    if not RESEND_API_KEY or not NOTIFY_EMAIL:
+        logger.info(f"[Lead notify skipped] {inq.get('name')} / {inq.get('phone')} — RESEND not configured")
+        return False
+    params = {
+        "from": f"Fashion Interior Leads <{SENDER_EMAIL}>",
+        "to": [NOTIFY_EMAIL],
+        "reply_to": inq.get("email") or SENDER_EMAIL,
+        "subject": f"New inquiry — {inq.get('name')} ({inq.get('service') or 'general'})",
+        "html": render_lead_email(inq),
+    }
+    try:
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Lead notification sent to {NOTIFY_EMAIL} for inquiry {inq.get('id')}")
+        return True
+    except Exception as e:
+        logger.error(f"Lead Resend failed: {e}")
         return False
 
 
@@ -264,6 +326,8 @@ async def create_inquiry(payload: InquiryIn):
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     doc["is_read"] = False
     await db.inquiries.insert_one(doc)
+    # Fire-and-forget lead notification (don't block the response if Resend is slow)
+    asyncio.create_task(send_lead_email(doc))
     return {k: v for k, v in doc.items() if k != "_id"}
 
 
@@ -396,6 +460,31 @@ async def admin_reorder_portfolio(payload: ReorderIn, user: dict = Depends(get_c
     for idx, item_id in enumerate(payload.ids):
         await db.portfolio.update_one({"id": item_id}, {"$set": {"order": idx}})
     return {"ok": True}
+
+
+# ---------- Admin: Upload ----------
+ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+MAX_UPLOAD_BYTES = 12 * 1024 * 1024  # 12 MB
+
+@api.post("/admin/upload")
+async def admin_upload(file: UploadFile = File(...), user: dict = Depends(get_current_admin)):
+    if not file or not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_IMAGE_EXT:
+        raise HTTPException(status_code=400, detail="Unsupported file type. Use JPG, PNG, WebP or GIF.")
+    data = await file.read()
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=400, detail="File too large (max 12 MB)")
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+    fname = f"{uuid.uuid4().hex}{ext}"
+    fpath = UPLOAD_DIR / fname
+    with open(fpath, "wb") as f:
+        f.write(data)
+    base = FRONTEND_URL.rstrip('/')
+    url = f"{base}/api/uploads/{fname}"
+    return {"url": url, "filename": fname, "size": len(data)}
 
 
 # ---------- Admin: Testimonials ----------
@@ -634,6 +723,9 @@ async def on_shutdown():
 
 # ---------- Mount ----------
 app.include_router(api)
+
+# Serve uploaded portfolio images at /api/uploads/<filename>
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
