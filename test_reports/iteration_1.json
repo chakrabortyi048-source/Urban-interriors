@@ -1,0 +1,48 @@
+{
+  "summary": "First-run end-to-end testing of Fashion Interior backend (FastAPI) and frontend (React). 19/20 backend pytest tests pass. All public + admin flows work in the UI (login, sidebar nav, all CRUD pages render, logout, auth-guard redirect). One CRITICAL backend bug found: /api/admin/reset-password always returns 400 'Token has expired' due to broken operator precedence in the expiry-check expression — the password-reset flow is functionally broken even though /api/admin/forgot-password works.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/admin/reset-password",
+        "issue": "Expression at server.py:326 'if expires_at and expires_at.replace(tzinfo=timezone.utc) if expires_at.tzinfo is None else expires_at < datetime.now(timezone.utc):' has wrong operator precedence. Python parses it as a ternary: `(expires_at and expires_at.replace(tzinfo=timezone.utc)) if (expires_at.tzinfo is None) else (expires_at < datetime.now(timezone.utc))`. PyMongo returns datetimes without tzinfo by default, so the ternary returns the new tz-aware datetime (truthy), causing the if-block to ALWAYS raise 400 'Token has expired'. Result: valid, non-expired reset tokens are rejected and admins can never reset their password via email link. Suggested fix: replace with explicit two-line normalisation:\n    if expires_at.tzinfo is None:\n        expires_at = expires_at.replace(tzinfo=timezone.utc)\n    if expires_at < datetime.now(timezone.utc):\n        raise HTTPException(400, 'Token has expired')",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "URGENT: Fix the password-reset expiry comparison in /app/backend/server.py around line 320-327 (admin_reset). The current ternary expression is broken; rewrite as two explicit statements (normalise tz, then compare). After the fix, the reset_password_flow test in backend_test.py will pass (it triggers forgot-password, reads the token from MongoDB password_reset_tokens, and POSTs reset-password)."
+  ],
+  "critical_code_review_comments": [
+    "server.py admin_reset expiry-check: dangerous one-liner combining `and`+ternary+`<`; rewrite for clarity (see action_items).",
+    "Resend's `resend.Emails.send` is wrapped in asyncio.to_thread — good. But the function silently returns False on Resend errors and only logs; consider returning a non-200 status only in non-production so QA notices misconfig.",
+    "No rate-limiting / brute-force lockout on /api/admin/login. The playbook mentions a `login_attempts` collection and 5-fail lockout, but there is no implementation. Consider adding before launch.",
+    "CORS is allow_origins='*' with allow_credentials=True. Browsers ignore credentials with wildcard origin; this works only because frontend uses Bearer token in localStorage. Cookie-based auth fallback (samesite=none, secure=true) would not actually be sent cross-origin — this is fine but worth documenting.",
+    "Single-file server.py at 642 lines is borderline; consider splitting auth, admin, public, seeds into separate modules before adding more features.",
+    "admin_reset and admin_forgot do not invalidate previously issued reset tokens for the same user — multiple unused tokens accumulate. Consider marking older tokens used when issuing a new one.",
+    "/api/admin/login response leaks role/email even on success (acceptable) but error message 'Invalid email or password' vs 'Not an admin account' (403) lets an attacker enumerate non-admin emails. Use a single 401 for both paths.",
+    "Frontend admin login currently uses Bearer-only — backend cookie path is dead code; either remove or enable cookie auth path with matching withCredentials on axios."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (created)"
+  ],
+  "success_rate": {
+    "backend": "95% (19/20 pytest)",
+    "frontend": "100% smoke tests (login, all admin sub-pages, logout, auth-guard, public homepage, hero headline visible, contact form, WhatsApp button)"
+  },
+  "test_credentials": "admin@fashioninterior.com / FashionAdmin@2025 — verified working",
+  "seed_data_creation": "None (relied on auto-seed: 5 portfolio + 25 testimonials + business_info + admin user). Created and cleaned up TEST_ inquiries inside tests.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend tests live at /app/backend/tests/backend_test.py and use real Mongo via MONGO_URL=mongodb://localhost:27017, DB=fashion_interior. The single failing test (TestPasswordReset::test_reset_password_flow) is a real backend bug, not a flaky test — re-run the same file after the fix in admin_reset (server.py ~line 326). Frontend uses localStorage key 'fi_admin_token' for Bearer auth; backend also sets an httpOnly cookie that is not used. Public homepage has a 1.5–2s loader, so always sleep ~3s after navigating to /. Hero headline is split into animated spans, so substring matching for 'Spaces That Tell Your Story' fails — verify visually or check parts separately.",
+  "rca_of_the_issue": "RCA — reset-password 400 always: (1) PyMongo by default returns BSON datetimes as naive `datetime` (tzinfo None). (2) The expression `expires_at and expires_at.replace(tzinfo=timezone.utc) if expires_at.tzinfo is None else expires_at < datetime.now(timezone.utc)` is parsed by Python as `(A and B) if C else D` because the ternary `if/else` has lower precedence than `<`. (3) When tzinfo is None (the common case), the ternary returns a datetime (truthy), so `if <datetime>:` is True and the 400 is raised regardless of actual expiry. Reproduction: POST /api/admin/forgot-password → fetch newest token from db.password_reset_tokens → POST /api/admin/reset-password with {token, new_password} → returns 400 'Token has expired' even seconds after creation. Fix: split into explicit normalisation + comparison statements (see action_items)."
+}
