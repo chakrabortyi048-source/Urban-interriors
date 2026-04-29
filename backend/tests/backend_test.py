@@ -404,16 +404,67 @@ class TestUpload:
         r = requests.post(f"{BASE_URL}/api/admin/upload", files=files, headers=h)
         assert r.status_code == 200, r.text
         d = r.json()
-        assert "url" in d and "filename" in d and "size" in d
-        assert d["url"].startswith("https://")
-        assert "/api/uploads/" in d["url"]
+        assert "url" in d and "filename" in d and "size" in d and "id" in d
+        # GridFS: id is 24-char hex ObjectId
+        assert len(d["id"]) == 24
+        assert all(c in "0123456789abcdef" for c in d["id"]), f"id is not hex: {d['id']}"
+        assert d["url"].endswith(f"/api/uploads/{d['id']}")
         assert d["filename"].endswith(".png")
         assert d["size"] == len(PNG_1x1)
-        # Fetch via public StaticFiles
-        g = requests.get(d["url"])
+        # Fetch via GridFS-backed serve endpoint (use public URL regardless of returned scheme)
+        public_url = f"{BASE_URL}/api/uploads/{d['id']}"
+        g = requests.get(public_url)
         assert g.status_code == 200
-        assert "image" in g.headers.get("content-type", "").lower()
+        ct = g.headers.get("content-type", "").lower()
+        assert ct == "image/png", f"unexpected content-type: {ct}"
+        # Cache-Control is set by backend but Cloudflare may override on public URL;
+        # verify at localhost level.
+        try:
+            g2 = requests.get(f"http://localhost:8001/api/uploads/{d['id']}", timeout=8)
+            assert "max-age" in g2.headers.get("cache-control", "").lower(), (
+                f"Backend Cache-Control missing at localhost: {g2.headers.get('cache-control')}")
+        except requests.RequestException:
+            pass
         assert g.content == PNG_1x1
+
+    def test_upload_url_uses_public_https_when_proxied(self, auth_headers):
+        """When request comes through public https ingress, url must be https
+        and use the public hostname — otherwise <img> on the admin page will be
+        blocked by the browser as mixed content."""
+        h = {"Authorization": auth_headers["Authorization"]}
+        files = {"file": ("public.png", io.BytesIO(PNG_1x1), "image/png")}
+        r = requests.post(f"{BASE_URL}/api/admin/upload", files=files, headers=h)
+        assert r.status_code == 200, r.text
+        url = r.json()["url"]
+        # The returned URL should match the public scheme/host the user hit
+        assert url.startswith(BASE_URL + "/api/uploads/"), (
+            f"Returned URL {url!r} does not match public BASE_URL {BASE_URL!r}. "
+            "request.base_url is reading the internal proxy host/scheme. "
+            "Fix: start uvicorn with --proxy-headers --forwarded-allow-ips='*' "
+            "OR build URL from X-Forwarded-Proto / X-Forwarded-Host headers.")
+
+    def test_upload_url_adapts_to_request_base_url(self, auth_headers):
+        """Hit localhost:8001 and verify returned URL uses localhost prefix."""
+        h = {"Authorization": auth_headers["Authorization"]}
+        files = {"file": ("local.png", io.BytesIO(PNG_1x1), "image/png")}
+        try:
+            r = requests.post("http://localhost:8001/api/admin/upload",
+                              files=files, headers=h, timeout=10)
+        except Exception as e:
+            pytest.skip(f"localhost:8001 not reachable: {e}")
+        assert r.status_code == 200, r.text
+        url = r.json()["url"]
+        assert url.startswith("http://localhost:8001/api/uploads/"), (
+            f"URL not adapted to localhost base_url: {url}")
+
+    def test_serve_invalid_id_404(self):
+        r = requests.get(f"{BASE_URL}/api/uploads/notavalidid")
+        assert r.status_code == 404
+
+    def test_serve_nonexistent_objectid_404(self):
+        # 24-char hex but not in GridFS
+        r = requests.get(f"{BASE_URL}/api/uploads/000000000000000000000000")
+        assert r.status_code == 404
 
     def test_upload_bad_extension(self, auth_headers):
         h = {"Authorization": auth_headers["Authorization"]}
@@ -448,6 +499,25 @@ class TestSEO:
         assert '09:15' in html and '20:30' in html
         assert '"ratingValue": "5.0"' in html or '"ratingValue":"5.0"' in html or '"ratingValue": 5.0' in html
         assert 'hasOfferCatalog' in html
+
+    def test_index_html_has_runtime_url_patch_script(self):
+        """Inline script patches canonical/og:url/JSON-LD @id/url to window.location.origin."""
+        r = requests.get(f"{BASE_URL}/", timeout=15)
+        assert r.status_code == 200
+        html = r.text
+        # Must reference window.location.origin to patch URLs at runtime
+        assert "window.location.origin" in html, "Missing runtime URL patch script"
+        # JSON-LD must be parseable
+        import re
+        import json as _json
+        m = re.search(
+            r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>',
+            html, re.DOTALL)
+        assert m, "JSON-LD script tag not found"
+        try:
+            _json.loads(m.group(1).strip())
+        except Exception as e:
+            pytest.fail(f"JSON-LD not parseable: {e}")
 
     def test_robots_txt(self):
         r = requests.get(f"{BASE_URL}/robots.txt", timeout=15)

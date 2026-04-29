@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api, formatApiError, setAdminToken } from "../lib/api";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import PasswordField from "../components/PasswordField";
 
 export default function AdminResetPassword() {
   const [params] = useSearchParams();
@@ -69,32 +70,26 @@ export default function AdminResetPassword() {
           </div>
         ) : (
           <form onSubmit={submit} className="mt-10 space-y-7">
-            <div className={`fi-field ${password ? "has-value" : ""}`}>
-              <input
-                type="password"
-                id="np"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder=" "
-                required
-                data-testid="admin-reset-password"
-                style={{ color: "#F9F8F6", borderBottomColor: "rgba(255,255,255,0.25)" }}
-              />
-              <label htmlFor="np" style={{ color: "rgba(255,255,255,0.5)" }}>New Password *</label>
-            </div>
-            <div className={`fi-field ${confirm ? "has-value" : ""}`}>
-              <input
-                type="password"
-                id="cp"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder=" "
-                required
-                data-testid="admin-reset-confirm"
-                style={{ color: "#F9F8F6", borderBottomColor: "rgba(255,255,255,0.25)" }}
-              />
-              <label htmlFor="cp" style={{ color: "rgba(255,255,255,0.5)" }}>Confirm Password *</label>
-            </div>
+            <PasswordField
+              id="np"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              label="New Password"
+              required
+              testId="admin-reset-password"
+              dark
+              autoComplete="new-password"
+            />
+            <PasswordField
+              id="cp"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              label="Confirm Password"
+              required
+              testId="admin-reset-confirm"
+              dark
+              autoComplete="new-password"
+            />
             {status.error && (
               <div className="text-sm" style={{ color: "#e88" }} data-testid="admin-reset-error">
                 {status.error}

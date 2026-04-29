@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Save, Mail, Lock, Building2 } from "lucide-react";
 import { api, formatApiError } from "../../lib/api";
+import PasswordField from "../PasswordField";
 
 function Section({ title, desc, children }) {
   return (
@@ -19,6 +20,19 @@ function Section({ title, desc, children }) {
 }
 
 function FieldRow({ label, value, onChange, type = "text", testid, required, name }) {
+  if (type === "password") {
+    return (
+      <PasswordField
+        id={name || testid || label}
+        value={value}
+        onChange={onChange}
+        label={label}
+        required={required}
+        testId={testid}
+        autoComplete="off"
+      />
+    );
+  }
   return (
     <div className={`fi-field ${value ? "has-value" : ""}`}>
       <input

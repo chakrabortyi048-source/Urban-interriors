@@ -15,10 +15,12 @@ from typing import List, Optional
 import bcrypt
 import jwt
 import resend
+from bson import ObjectId
+from pymongo import UpdateOne
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 
@@ -32,8 +34,6 @@ RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '').strip()
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 NOTIFY_EMAIL = os.environ.get('NOTIFY_EMAIL', ADMIN_EMAIL).strip()
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-UPLOAD_DIR = ROOT_DIR / 'uploads'
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 JWT_ALG = "HS256"
 
 if RESEND_API_KEY:
@@ -45,6 +45,12 @@ logger = logging.getLogger("fashion-interior")
 # ---------- DB ----------
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
+gridfs = AsyncIOMotorGridFSBucket(db, bucket_name="uploads")
+
+
+def _abs_base(request: Request) -> str:
+    """Return the absolute base URL the user is hitting (auto-adapts to any deployed domain)."""
+    return str(request.base_url).rstrip('/')
 
 # ---------- App ----------
 app = FastAPI(title="Fashion Interior API")
@@ -360,7 +366,7 @@ async def admin_me(user: dict = Depends(get_current_admin)):
 
 
 @api.post("/admin/forgot-password")
-async def admin_forgot(payload: ForgotIn):
+async def admin_forgot(request: Request, payload: ForgotIn):
     email = payload.email.lower().strip()
     user = await db.users.find_one({"email": email})
     # Always return success to prevent enumeration
@@ -374,7 +380,7 @@ async def admin_forgot(payload: ForgotIn):
             "used": False,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
-        reset_link = f"{FRONTEND_URL}/admin/reset-password?token={token}"
+        reset_link = f"{_abs_base(request)}/admin/reset-password?token={token}"
         await send_reset_email(email, reset_link)
     return {"ok": True, "message": "If that email is registered, a reset link has been sent."}
 
@@ -457,17 +463,24 @@ async def admin_delete_portfolio(item_id: str, user: dict = Depends(get_current_
 
 @api.post("/admin/portfolio/reorder")
 async def admin_reorder_portfolio(payload: ReorderIn, user: dict = Depends(get_current_admin)):
-    for idx, item_id in enumerate(payload.ids):
-        await db.portfolio.update_one({"id": item_id}, {"$set": {"order": idx}})
+    if not payload.ids:
+        return {"ok": True}
+    ops = [UpdateOne({"id": item_id}, {"$set": {"order": idx}}) for idx, item_id in enumerate(payload.ids)]
+    await db.portfolio.bulk_write(ops)
     return {"ok": True}
 
 
-# ---------- Admin: Upload ----------
+# ---------- Uploads (GridFS — survives every redeploy) ----------
 ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+CONTENT_TYPE_BY_EXT = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+    ".webp": "image/webp", ".gif": "image/gif",
+}
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024  # 12 MB
 
+
 @api.post("/admin/upload")
-async def admin_upload(file: UploadFile = File(...), user: dict = Depends(get_current_admin)):
+async def admin_upload(request: Request, file: UploadFile = File(...), user: dict = Depends(get_current_admin)):
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     ext = Path(file.filename).suffix.lower()
@@ -478,13 +491,35 @@ async def admin_upload(file: UploadFile = File(...), user: dict = Depends(get_cu
         raise HTTPException(status_code=400, detail="File too large (max 12 MB)")
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
-    fname = f"{uuid.uuid4().hex}{ext}"
-    fpath = UPLOAD_DIR / fname
-    with open(fpath, "wb") as f:
-        f.write(data)
-    base = FRONTEND_URL.rstrip('/')
-    url = f"{base}/api/uploads/{fname}"
-    return {"url": url, "filename": fname, "size": len(data)}
+    safe_name = f"{uuid.uuid4().hex}{ext}"
+    content_type = CONTENT_TYPE_BY_EXT.get(ext, "application/octet-stream")
+    file_id = await gridfs.upload_from_stream(
+        safe_name, data, metadata={"content_type": content_type, "uploaded_by": user.get("id")}
+    )
+    url = f"{_abs_base(request)}/api/uploads/{str(file_id)}"
+    return {"url": url, "filename": safe_name, "size": len(data), "id": str(file_id)}
+
+
+@api.get("/uploads/{file_id}")
+async def serve_upload(file_id: str):
+    try:
+        oid = ObjectId(file_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Not found")
+    try:
+        grid_out = await gridfs.open_download_stream(oid)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Not found")
+    ct = (grid_out.metadata or {}).get("content_type", "application/octet-stream")
+
+    async def streamer():
+        while True:
+            chunk = await grid_out.readchunk()
+            if not chunk:
+                break
+            yield chunk
+
+    return StreamingResponse(streamer(), media_type=ct, headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
 
 # ---------- Admin: Testimonials ----------
@@ -723,9 +758,6 @@ async def on_shutdown():
 
 # ---------- Mount ----------
 app.include_router(api)
-
-# Serve uploaded portfolio images at /api/uploads/<filename>
-app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,

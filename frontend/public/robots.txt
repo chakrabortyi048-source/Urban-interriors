@@ -2,5 +2,3 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
-
-Sitemap: https://aniket-interiors.preview.emergentagent.com/sitemap.xml

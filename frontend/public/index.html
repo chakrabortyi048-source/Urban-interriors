@@ -96,6 +96,25 @@
         </script>
 
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
+        <script>
+        // Auto-rewrite SEO URLs to whatever domain the site is actually served on (works on every redeploy / custom domain).
+        (function () {
+          try {
+            var origin = window.location.origin;
+            var canonical = document.querySelector('link[rel="canonical"]');
+            if (canonical) canonical.href = origin + '/';
+            var ogu = document.querySelector('meta[property="og:url"]');
+            if (ogu) ogu.setAttribute('content', origin + '/');
+            var ld = document.querySelector('script[type="application/ld+json"]');
+            if (ld) {
+              var d = JSON.parse(ld.textContent);
+              d['@id'] = origin + '/#fashion-interior';
+              d.url = origin + '/';
+              ld.textContent = JSON.stringify(d);
+            }
+          } catch (_) { /* no-op */ }
+        })();
+        </script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
     </head>
     <body>

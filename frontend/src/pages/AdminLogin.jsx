@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { api, setAdminToken, formatApiError, getAdminToken } from "../lib/api";
+import PasswordField from "../components/PasswordField";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -90,20 +91,16 @@ export default function AdminLogin() {
               />
               <label htmlFor="email" style={{ color: "rgba(255,255,255,0.5)" }}>Email *</label>
             </div>
-            <div className={`fi-field ${password ? "has-value" : ""}`}>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder=" "
-                data-testid="admin-login-password"
-                style={{ color: "#F9F8F6", borderBottomColor: "rgba(255,255,255,0.25)" }}
-                autoComplete="current-password"
-              />
-              <label htmlFor="password" style={{ color: "rgba(255,255,255,0.5)" }}>Password *</label>
-            </div>
+            <PasswordField
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              label="Password"
+              required
+              testId="admin-login-password"
+              dark
+              autoComplete="current-password"
+            />
 
             {status.error && (
               <div className="text-sm" style={{ color: "#e88" }} data-testid="admin-login-error">
