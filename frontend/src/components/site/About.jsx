@@ -1,7 +1,7 @@
 import { PaintRoller, Armchair, TreePine, Sprout } from "lucide-react";
 
 const ABOUT_IMG =
-  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/ufa4ot75_Screenshot_2026-04-30_175832.jpg";
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/1ix5f5nl_IMG-20260501-WA0023.jpg";
 
 const PILLARS = [
   { icon: PaintRoller, label: "Interior Painting", desc: "Refreshing coats that set the mood." },

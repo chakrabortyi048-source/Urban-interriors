@@ -15,6 +15,8 @@ from typing import List, Optional
 import bcrypt
 import jwt
 import resend
+import httpx
+import hashlib
 from bson import ObjectId
 from pymongo import UpdateOne
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
@@ -22,6 +24,8 @@ from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 
 # ---------- Config ----------
@@ -34,6 +38,8 @@ RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '').strip()
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 NOTIFY_EMAIL = os.environ.get('NOTIFY_EMAIL', ADMIN_EMAIL).strip()
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '').strip()
+GOOGLE_PLACE_ID = os.environ.get('GOOGLE_PLACE_ID', '').strip()
 JWT_ALG = "HS256"
 
 if RESEND_API_KEY:
@@ -222,6 +228,94 @@ async def send_lead_email(inq: dict) -> bool:
     except Exception as e:
         logger.error(f"Lead Resend failed: {e}")
         return False
+
+
+# ---------- Google Reviews auto-sync ----------
+def _review_fingerprint(name: str, text: str) -> str:
+    """Stable hash so the same Google review is never seeded twice."""
+    content = f"{(name or '').strip().lower()}::{(text or '').strip().lower()[:120]}"
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+async def sync_google_reviews() -> dict:
+    """
+    Pull reviews from Google Places API (New) and upsert them into the
+    `testimonials` collection. Returns a small status dict.
+
+    Safe to call when not configured — returns a friendly "not configured"
+    response without raising.
+    """
+    status = {"configured": False, "fetched": 0, "added": 0, "updated": 0, "error": None, "ran_at": datetime.now(timezone.utc).isoformat()}
+    if not GOOGLE_MAPS_API_KEY or not GOOGLE_PLACE_ID:
+        status["error"] = "GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID must be set in backend/.env"
+        await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
+        return status
+    status["configured"] = True
+
+    url = f"https://places.googleapis.com/v1/places/{GOOGLE_PLACE_ID}"
+    headers = {
+        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        "X-Goog-FieldMask": "id,rating,userRatingCount,reviews",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+    except httpx.HTTPStatusError as e:
+        body = e.response.text[:300] if e.response is not None else ""
+        status["error"] = f"Google API HTTP {e.response.status_code}: {body}"
+        logger.error(status["error"])
+        await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
+        return status
+    except Exception as e:
+        status["error"] = f"Google API error: {e}"
+        logger.error(status["error"])
+        await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
+        return status
+
+    reviews = data.get("reviews", []) or []
+    status["fetched"] = len(reviews)
+    # Determine starting `order` for any new reviews — append after existing ones.
+    base_order = await db.testimonials.count_documents({})
+    new_order = base_order
+    for rev in reviews:
+        author = (rev.get("authorAttribution") or {})
+        name = author.get("displayName") or "Google reviewer"
+        text_obj = rev.get("text") or rev.get("originalText") or {}
+        text = text_obj.get("text") if isinstance(text_obj, dict) else (text_obj or "")
+        rating = int(rev.get("rating") or 5)
+        when = rev.get("relativePublishTimeDescription") or ""
+        fp = _review_fingerprint(name, text or "")
+        existing = await db.testimonials.find_one({"google_fingerprint": fp})
+        if existing:
+            await db.testimonials.update_one(
+                {"google_fingerprint": fp},
+                {"$set": {"name": name, "rating": rating, "text": text, "when": when, "source": "google", "last_synced": status["ran_at"]}},
+            )
+            status["updated"] += 1
+        else:
+            await db.testimonials.insert_one({
+                "id": str(uuid.uuid4()),
+                "name": name,
+                "rating": rating,
+                "text": text or "",
+                "when": when,
+                "is_local_guide": False,
+                "review_count": None,
+                "order": new_order,
+                "source": "google",
+                "google_fingerprint": fp,
+                "last_synced": status["ran_at"],
+            })
+            status["added"] += 1
+            new_order += 1
+
+    status["place_rating"] = data.get("rating")
+    status["place_review_count"] = data.get("userRatingCount")
+    await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
+    logger.info(f"Google sync done: {status}")
+    return status
 
 
 # ---------- Models ----------
@@ -477,6 +571,22 @@ async def admin_reorder_portfolio(payload: ReorderIn, user: dict = Depends(get_c
     ops = [UpdateOne({"id": item_id}, {"$set": {"order": idx}}) for idx, item_id in enumerate(payload.ids)]
     await db.portfolio.bulk_write(ops)
     return {"ok": True}
+
+
+# ---------- Admin: Google Reviews sync ----------
+@api.get("/admin/google-sync/status")
+async def admin_google_sync_status(user: dict = Depends(get_current_admin)):
+    doc = await db.system.find_one({"id": "google_sync"}, {"_id": 0})
+    return {
+        "configured": bool(GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID),
+        "place_id": GOOGLE_PLACE_ID or "",
+        "last_run": doc or {"ran_at": None, "fetched": 0, "added": 0, "updated": 0, "error": None},
+    }
+
+
+@api.post("/admin/google-sync/run")
+async def admin_google_sync_run(user: dict = Depends(get_current_admin)):
+    return await sync_google_reviews()
 
 
 # ---------- Uploads (GridFS — survives every redeploy) ----------
@@ -747,21 +857,40 @@ async def seed_business_info():
         logger.info("Seeded business info")
 
 
+scheduler = AsyncIOScheduler()
+
+
 @app.on_event("startup")
 async def on_startup():
     await db.users.create_index("email", unique=True)
     await db.password_reset_tokens.create_index("expires_at", expireAfterSeconds=0)
     await db.portfolio.create_index("order")
     await db.testimonials.create_index("order")
+    await db.testimonials.create_index("google_fingerprint", sparse=True)
     await db.inquiries.create_index("created_at")
     await seed_admin()
     await seed_portfolio()
     await seed_testimonials()
     await seed_business_info()
 
+    # Google Reviews auto-sync every 6 hours (only when configured).
+    if GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID and not scheduler.running:
+        scheduler.add_job(
+            sync_google_reviews,
+            IntervalTrigger(hours=6),
+            id="google_reviews_sync",
+            name="Sync Google reviews every 6h",
+            replace_existing=True,
+            next_run_time=datetime.now(timezone.utc) + timedelta(seconds=10),
+        )
+        scheduler.start()
+        logger.info("Google reviews scheduler started — runs every 6h")
+
 
 @app.on_event("shutdown")
 async def on_shutdown():
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
     client.close()
 
 

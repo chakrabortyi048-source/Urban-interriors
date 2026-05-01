@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, Mail, Lock, Building2 } from "lucide-react";
+import { Save, Mail, Lock, Building2, RefreshCw, Star } from "lucide-react";
 import { api, formatApiError } from "../../lib/api";
 import PasswordField from "../PasswordField";
 
@@ -69,9 +69,31 @@ export default function AdminSettings({ me, setMe, onLogout }) {
   // Reset link
   const [resetMsg, setResetMsg] = useState("");
 
+  // Google Reviews sync
+  const [gStatus, setGStatus] = useState(null);
+  const [gLoading, setGLoading] = useState(false);
+  const [gMsg, setGMsg] = useState("");
+
   useEffect(() => {
     api.get("/admin/business-info").then((r) => setInfo(r.data || {})).catch(() => {});
+    api.get("/admin/google-sync/status").then((r) => setGStatus(r.data)).catch(() => {});
   }, []);
+
+  const runGoogleSync = async () => {
+    setGLoading(true);
+    setGMsg("");
+    try {
+      const { data } = await api.post("/admin/google-sync/run");
+      const r = await api.get("/admin/google-sync/status");
+      setGStatus(r.data);
+      if (data.error) setGMsg(`⚠️ ${data.error}`);
+      else setGMsg(`✓ Synced — ${data.added} new, ${data.updated} updated, ${data.fetched} fetched`);
+    } catch (err) {
+      setGMsg(formatApiError(err.response?.data?.detail) || "Sync failed");
+    } finally {
+      setGLoading(false);
+    }
+  };
 
   const saveInfo = async (e) => {
     e.preventDefault();
@@ -206,6 +228,70 @@ export default function AdminSettings({ me, setMe, onLogout }) {
                 {savingInfo ? <span className="fi-spin" /> : <><Save size={14} /> Save Changes</>}
               </button>
             </form>
+          </Section>
+
+          <Section
+            title="Google Reviews auto-sync"
+            desc="Pull verified Google Maps reviews into the testimonials section. Runs automatically every 6 hours when configured."
+          >
+            <div className="text-sm" style={{ color: "#3a3a3a", lineHeight: 1.7 }}>
+              {gStatus?.configured ? (
+                <div className="flex items-center gap-2" style={{ color: "#3a8a55" }}>
+                  <Star size={14} className="fi-star" /> Configured · Place ID:{" "}
+                  <span className="font-mono text-xs" style={{ color: "#737373" }}>
+                    {gStatus.place_id?.slice(0, 18)}…
+                  </span>
+                </div>
+              ) : (
+                <div style={{ color: "#a33" }}>
+                  Not yet configured. Add <code>GOOGLE_MAPS_API_KEY</code> and{" "}
+                  <code>GOOGLE_PLACE_ID</code> to <code>backend/.env</code> and restart the backend.
+                  Then click "Sync now" below.
+                </div>
+              )}
+            </div>
+
+            {gStatus?.last_run?.ran_at && (
+              <div
+                className="mt-4 text-xs grid grid-cols-2 md:grid-cols-4 gap-2"
+                style={{ color: "#737373" }}
+                data-testid="google-sync-stats"
+              >
+                <div>
+                  <div className="overline">Last run</div>
+                  <div style={{ color: "#1A1A1A" }} className="mt-1">
+                    {new Date(gStatus.last_run.ran_at).toLocaleString()}
+                  </div>
+                </div>
+                <div>
+                  <div className="overline">Fetched</div>
+                  <div style={{ color: "#1A1A1A" }} className="mt-1">{gStatus.last_run.fetched ?? 0}</div>
+                </div>
+                <div>
+                  <div className="overline">New</div>
+                  <div style={{ color: "#CBA153" }} className="mt-1">+{gStatus.last_run.added ?? 0}</div>
+                </div>
+                <div>
+                  <div className="overline">Updated</div>
+                  <div style={{ color: "#1A1A1A" }} className="mt-1">{gStatus.last_run.updated ?? 0}</div>
+                </div>
+                {gStatus.last_run.error && (
+                  <div className="md:col-span-4 text-xs" style={{ color: "#a33" }}>
+                    Last error: {gStatus.last_run.error}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={runGoogleSync}
+              disabled={gLoading}
+              className="btn-fi-dark mt-5"
+              data-testid="settings-google-sync-btn"
+            >
+              {gLoading ? <span className="fi-spin" /> : <><RefreshCw size={14} /> Sync Now</>}
+            </button>
+            {gMsg && <div className="text-sm mt-3" style={{ color: gMsg.startsWith("✓") ? "#3a8a55" : "#a33" }}>{gMsg}</div>}
           </Section>
         </div>
       </div>
