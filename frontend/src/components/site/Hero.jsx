@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
 const HERO_IMG =
-  "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/zh7h9lsp_Screenshot_2026-04-28_164511.jpg";
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/04he01cf_Screenshot_2026-04-30_175707.jpg";
 
 export default function Hero() {
   const [parallaxY, setParallaxY] = useState(0);
@@ -57,7 +57,7 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-end pb-20 md:pb-28 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
         <div className="overline mb-6" style={{ color: "rgba(203,161,83,0.95)" }}>
-          Kolkata · Since 1985
+          Kolkata · Chinar Park
         </div>
         <h1
           className="font-serif-display text-white"
@@ -90,8 +90,8 @@ export default function Hero() {
             animation: "fi-rise 0.9s 1.1s cubic-bezier(0.16,1,0.3,1) backwards",
           }}
         >
-          A Kolkata interior studio crafting cinematic wallpapers, bespoke flooring and
-          quietly luxurious spaces — for homes and storefronts that deserve to be remembered.
+          Your one-stop Chinar Park studio for interior painting, bespoke furniture,
+          flooring, and captivating landscape designs — turning houses into dream homes.
         </p>
 
         <div
@@ -135,7 +135,7 @@ export default function Hero() {
           letterSpacing: "0.4em",
         }}
       >
-        Wallpaper · Flooring · Blinds · 3D Panels
+        Painting · Furniture · Flooring · Landscape
       </div>
     </section>
   );

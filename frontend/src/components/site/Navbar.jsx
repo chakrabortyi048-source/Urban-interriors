@@ -53,7 +53,7 @@ export default function Navbar() {
               className="font-serif-display text-xl md:text-2xl"
               style={{ color: "#F9F8F6" }}
             >
-              Fashion <span style={{ color: "#CBA153" }}>Interior</span>
+              Urban <span style={{ color: "#CBA153" }}>Interiors</span>
             </span>
           </button>
 

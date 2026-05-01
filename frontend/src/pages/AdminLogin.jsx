@@ -69,7 +69,7 @@ export default function AdminLogin() {
           ← Back to site
         </a>
         <div className="font-serif-display" style={{ fontSize: "clamp(2rem,4vw,2.8rem)", color: "#F9F8F6", lineHeight: 1.05 }}>
-          Fashion <span style={{ color: "#CBA153" }}>Interior</span>
+          Urban <span style={{ color: "#CBA153" }}>Interiors</span>
         </div>
         <div className="overline mt-2" style={{ color: "#737373", letterSpacing: "0.4em" }}>
           Admin Console

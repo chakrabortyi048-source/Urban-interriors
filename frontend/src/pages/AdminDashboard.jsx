@@ -72,7 +72,7 @@ export default function AdminDashboard() {
       <aside className="admin-sidebar">
         <div className="mb-10 hidden lg:block">
           <div className="font-serif-display text-2xl" style={{ color: "#F9F8F6", lineHeight: 1.1 }}>
-            Fashion <span style={{ color: "#CBA153" }}>Interior</span>
+            Urban <span style={{ color: "#CBA153" }}>Interiors</span>
           </div>
           <div className="overline mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
             Admin

@@ -1,33 +1,24 @@
-import {
-  Wallpaper,
-  Layers,
-  PanelTop,
-  PaintRoller,
-  Square,
-  TreePine,
-  Sprout,
-  Flower2,
-  Blinds,
-  SquareDashed,
-  Sparkles,
-  Grid3x3,
-  Box,
-} from "lucide-react";
+import { Palette, Hammer, Armchair } from "lucide-react";
 
 const services = [
-  { icon: Wallpaper, title: "Wallpaper", desc: "Korean, German & Russian wallpapers — curated for taste and tested for India's humidity." },
-  { icon: Square, title: "PVC Flooring", desc: "Wood, stone and matte finishes. Easy to install, easy to live with." },
-  { icon: Layers, title: "Laminates", desc: "Premium decorative laminates for shutters, partitions and feature walls." },
-  { icon: PaintRoller, title: "Customised Wallpaper", desc: "Print your moodboard. We'll plot, calibrate and install — wall by wall." },
-  { icon: Box, title: "PVC Planks", desc: "Lock-fit waterproof planks. Install over old tiles in a single weekend." },
-  { icon: TreePine, title: "Wooden Flooring", desc: "Engineered & laminated wooden floors. Hand-finished edge profiles, lifetime warranty." },
-  { icon: Sprout, title: "Artificial Grass", desc: "UV-stable turf for balconies, terraces and showroom floors." },
-  { icon: Flower2, title: "Artificial Planters", desc: "Photo-real green walls and statement planters — zero upkeep." },
-  { icon: Blinds, title: "Blinds", desc: "Roller, roman, vertical and zebra blinds. Soft light, total privacy." },
-  { icon: SquareDashed, title: "Customised Blinds", desc: "Printed and motorised blinds, made to your exact opening." },
-  { icon: Sparkles, title: "Glass Film", desc: "Frosted, decorative and one-way films — for cabins, bathrooms and façades." },
-  { icon: PanelTop, title: "PVC Laminates", desc: "Lightweight, mould-resistant laminates for bathrooms and modular kitchens." },
-  { icon: Grid3x3, title: "3D Panels", desc: "Sculpted PVC, gypsum and PU 3D wall panels for cinematic feature walls." },
+  {
+    icon: Palette,
+    category: "Interior Designer",
+    title: "Interior Painting",
+    desc: "Refreshing coats, flawless finishes and colour consults that set the tone for every room — interior painting done the right way.",
+  },
+  {
+    icon: Hammer,
+    category: "Kitchen Renovator",
+    title: "Drywall Repair",
+    desc: "Cracked walls, damp patches, ceiling joints — we patch, skim and seal drywalls so your kitchen walls look brand new again.",
+  },
+  {
+    icon: Armchair,
+    category: "Furniture Maker",
+    title: "Wood Staining",
+    desc: "Rich, durable wood stains for furniture, flooring and cabinetry — hand-finished in our workshop, installed at your home.",
+  },
 ];
 
 export default function Services() {
@@ -52,7 +43,7 @@ export default function Services() {
                 color: "#1A1A1A",
               }}
             >
-              Thirteen crafts.
+              Three crafts.
               <br />
               <span style={{ color: "#CBA153", fontStyle: "italic" }}>One studio.</span>
             </h2>
@@ -61,12 +52,12 @@ export default function Services() {
             className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"
             style={{ color: "#3a3a3a", lineHeight: 1.7 }}
           >
-            From a single feature wall to a turnkey commercial fit-out, every product is
-            sourced, supplied and installed by our own team — no middlemen, no surprises.
+            From a single feature wall to a turnkey home makeover, every service is
+            sourced, supplied and finished by our own team — no middlemen, no surprises.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {services.map((s, i) => {
             const Icon = s.icon;
             return (
@@ -74,28 +65,31 @@ export default function Services() {
                 key={s.title}
                 data-testid={`service-card-${s.title.toLowerCase().replace(/\s+/g, "-")}`}
                 className="service-card fi-reveal cursor-pointer-fi"
-                style={{ transitionDelay: `${(i % 4) * 0.06}s` }}
+                style={{ transitionDelay: `${i * 0.08}s`, padding: "3rem 2.2rem" }}
               >
                 <div className="service-icon">
                   <Icon size={22} strokeWidth={1.5} />
                 </div>
+                <div className="overline mt-7" style={{ color: "#737373" }}>
+                  {s.category}
+                </div>
                 <h3
-                  className="font-serif-display mt-7"
-                  style={{ fontSize: "1.55rem", color: "#1A1A1A", lineHeight: 1.2 }}
+                  className="font-serif-display mt-3"
+                  style={{ fontSize: "1.8rem", color: "#1A1A1A", lineHeight: 1.2 }}
                 >
                   {s.title}
                 </h3>
                 <p
-                  className="mt-3 text-sm"
-                  style={{ color: "#5a5a5a", lineHeight: 1.7, fontWeight: 300 }}
+                  className="mt-4 text-sm"
+                  style={{ color: "#5a5a5a", lineHeight: 1.75, fontWeight: 300 }}
                 >
                   {s.desc}
                 </p>
                 <div
-                  className="mt-6 overline"
+                  className="mt-8 overline"
                   style={{ color: "#CBA153" }}
                 >
-                  0{i + 1 < 10 ? "0" + (i + 1) : i + 1}
+                  0{i + 1}
                 </div>
               </div>
             );

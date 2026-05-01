@@ -1,53 +1,19 @@
-import { useEffect, useRef, useState } from "react";
-import { useCountUp } from "../../lib/hooks";
+import { PaintRoller, Armchair, TreePine, Sprout } from "lucide-react";
 
 const ABOUT_IMG =
-  "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/o8oeed6y_Screenshot_2026-04-28_164526.jpg";
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/ufa4ot75_Screenshot_2026-04-30_175832.jpg";
 
-function Stat({ value, label, suffix = "+", start }) {
-  const ref = useCountUp(value, 1800, start);
-  return (
-    <div data-testid={`about-stat-${label.toLowerCase().replace(/\s+/g, "-")}`}>
-      <div
-        className="font-serif-display"
-        style={{ fontSize: "clamp(2.5rem, 5vw, 3.6rem)", color: "#CBA153", lineHeight: 1 }}
-      >
-        <span ref={ref}>0</span>
-        <span>{suffix}</span>
-      </div>
-      <div className="overline mt-3" style={{ color: "#737373" }}>
-        {label}
-      </div>
-    </div>
-  );
-}
+const PILLARS = [
+  { icon: PaintRoller, label: "Interior Painting", desc: "Refreshing coats that set the mood." },
+  { icon: Armchair, label: "Bespoke Furniture", desc: "Made-to-measure, made to last." },
+  { icon: TreePine, label: "Wood & Laminate Flooring", desc: "Sanding, polishing and fresh laminates." },
+  { icon: Sprout, label: "Landscape Design", desc: "Green, calm spaces inside and out." },
+];
 
 export default function About() {
-  const sectionRef = useRef(null);
-  const [start, setStart] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setStart(true);
-            io.disconnect();
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
   return (
     <section
       id="about"
-      ref={sectionRef}
       data-testid="about-section"
       style={{ background: "var(--fi-offwhite)" }}
       className="relative py-24 md:py-32 lg:py-40"
@@ -67,34 +33,60 @@ export default function About() {
                 color: "#1A1A1A",
               }}
             >
-              A trusted Kolkata studio,
+              Transform your space
               <br />
               <span style={{ color: "#CBA153", fontStyle: "italic" }}>
-                obsessed with the detail.
+                with Urban Interiors.
               </span>
             </h2>
             <p
               className="mt-7 text-base md:text-lg fi-reveal fi-reveal-delay-2"
               style={{ color: "#3a3a3a", lineHeight: 1.85, fontWeight: 300, maxWidth: "560px" }}
             >
-              Fashion Interior is a family-run interior studio on Rajarhat Main Road,
-              quietly transforming homes, showrooms and offices across Kolkata for over four
-              decades. Walk in for an imported wallpaper or a wooden floor — leave with a
-              space that feels considered, calm and unmistakably yours.
+              Transform your space with <strong style={{ color: "#1A1A1A", fontWeight: 500 }}>URBAN INTERIORS</strong>,
+              your one-stop destination for all your interior needs. From refreshing coats of
+              paint to bespoke furniture and captivating landscape designs, we bring your
+              vision to life.
             </p>
             <p
               className="mt-5 text-base fi-reveal fi-reveal-delay-3"
               style={{ color: "#3a3a3a", lineHeight: 1.85, fontWeight: 300, maxWidth: "560px" }}
             >
-              We curate Korean, German and Russian wallpapers, premium PVC and wooden
-              flooring, custom blinds, 3D panels and louvers — and we install every one of
-              them ourselves, on time, without drama.
+              Enhance your interiors with our expert floor sanding and polishing services,
+              and discover a wide selection of exquisite wood and laminate flooring options.
+              Located in Chinar Park, New Town, Kolkata, URBAN INTERIORS delivers
+              unparalleled craftsmanship and artistry, turning houses into dream homes.
             </p>
 
-            <div className="grid grid-cols-3 gap-6 mt-12 fi-reveal fi-reveal-delay-4">
-              <Stat value={40} label="Years of Trust" suffix="+" start={start} />
-              <Stat value={2500} label="Spaces Designed" suffix="+" start={start} />
-              <Stat value={100} label="On-Time Install" suffix="%" start={start} />
+            <div className="grid grid-cols-2 gap-4 mt-12 fi-reveal fi-reveal-delay-4">
+              {PILLARS.map((p) => {
+                const Icon = p.icon;
+                return (
+                  <div
+                    key={p.label}
+                    data-testid={`about-pillar-${p.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                    className="p-5 transition-all duration-500 cursor-pointer-fi"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid rgba(0,0,0,0.06)",
+                      borderLeft: "2px solid #CBA153",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 10px 30px -18px rgba(203,161,83,0.45)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+                  >
+                    <Icon size={20} style={{ color: "#CBA153" }} />
+                    <div
+                      className="font-serif-display mt-3"
+                      style={{ fontSize: "1.05rem", color: "#1A1A1A", lineHeight: 1.2 }}
+                    >
+                      {p.label}
+                    </div>
+                    <div className="text-xs mt-1" style={{ color: "#737373", lineHeight: 1.5 }}>
+                      {p.desc}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -109,7 +101,7 @@ export default function About() {
             >
               <img
                 src={ABOUT_IMG}
-                alt="A Fashion Interior project — chandelier living room, Kolkata"
+                alt="Urban Interiors — a recent project in Chinar Park, Kolkata"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -125,11 +117,10 @@ export default function About() {
                 className="mt-3 text-sm"
                 style={{ color: "#1A1A1A", lineHeight: 1.6, fontStyle: "italic" }}
               >
-                "We don't sell products. We sell the quiet feeling of walking into a room
-                that is finally, undeniably yours."
+                "Unparalleled craftsmanship and artistry — turning houses into dream homes."
               </p>
               <div className="overline mt-4" style={{ color: "#737373" }}>
-                — Manoj &amp; Aniket, Founders
+                — Urban Interiors, Chinar Park
               </div>
             </div>
           </div>

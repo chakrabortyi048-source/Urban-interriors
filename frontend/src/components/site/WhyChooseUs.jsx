@@ -18,13 +18,13 @@ const points = [
   },
   {
     icon: ShieldCheck,
-    title: "Trusted Local Studio",
-    desc: "Four decades on Rajarhat Road. Rated five stars by hundreds of Kolkata families and businesses.",
+    title: "Trusted Chinar Park Studio",
+    desc: "A familiar face in Chinar Park — rated highly by clients for reliable delivery and calm, professional site conduct.",
   },
   {
     icon: Heart,
-    title: "Genuine, Family-Run Care",
-    desc: "Owner-led service. Manoj ji and Aniket ji answer the phone — and own every project from quote to handover.",
+    title: "Genuine, Owner-Led Care",
+    desc: "Every project is owned end-to-end by the studio — from the first site visit to the final polish on the floor.",
   },
 ];
 

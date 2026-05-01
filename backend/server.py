@@ -49,11 +49,20 @@ gridfs = AsyncIOMotorGridFSBucket(db, bucket_name="uploads")
 
 
 def _abs_base(request: Request) -> str:
-    """Return the absolute base URL the user is hitting (auto-adapts to any deployed domain)."""
-    return str(request.base_url).rstrip('/')
+    """Return the public-facing base URL the user is hitting.
+
+    Honours X-Forwarded-Proto / X-Forwarded-Host (set by ingress / Cloudflare /
+    any reverse proxy) so URLs always match the user's browser address bar
+    even when uvicorn isn't started with --proxy-headers.
+    """
+    fwd_host = request.headers.get("x-forwarded-host")
+    fwd_proto = request.headers.get("x-forwarded-proto")
+    host = (fwd_host.split(",")[0].strip() if fwd_host else request.url.netloc)
+    scheme = (fwd_proto.split(",")[0].strip() if fwd_proto else request.url.scheme)
+    return f"{scheme}://{host}".rstrip("/")
 
 # ---------- App ----------
-app = FastAPI(title="Fashion Interior API")
+app = FastAPI(title="Urban Interiors API")
 api = APIRouter(prefix="/api")
 
 
@@ -108,13 +117,13 @@ def render_reset_email(reset_link: str) -> str:
         <tr><td align="center">
           <table width="560" cellpadding="0" cellspacing="0" style="background:#1d1d1d;border-radius:12px;overflow:hidden;border:1px solid rgba(203,161,83,0.2);">
             <tr><td style="padding:40px 40px 24px 40px;border-bottom:1px solid rgba(203,161,83,0.18);">
-              <div style="font-family:Georgia,'Playfair Display',serif;font-size:28px;color:#CBA153;letter-spacing:0.5px;">Fashion Interior</div>
-              <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#8a8a8a;margin-top:6px;">Kolkata · Since 1985</div>
+              <div style="font-family:Georgia,'Playfair Display',serif;font-size:28px;color:#CBA153;letter-spacing:0.5px;">Urban Interiors</div>
+              <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#8a8a8a;margin-top:6px;">Kolkata · Chinar Park</div>
             </td></tr>
             <tr><td style="padding:36px 40px;color:#F9F8F6;">
               <h1 style="font-family:Georgia,'Playfair Display',serif;font-size:30px;font-weight:400;margin:0 0 16px 0;color:#F9F8F6;letter-spacing:-0.5px;">Reset your password</h1>
               <p style="font-size:15px;line-height:1.7;color:#cfcfcf;margin:0 0 28px 0;">
-                We received a request to reset the password for your Fashion Interior admin account.
+                We received a request to reset the password for your Urban Interiors admin account.
                 Click the button below to set a new password. This link will expire in 60 minutes.
               </p>
               <table cellpadding="0" cellspacing="0"><tr><td style="border-radius:2px;background:#CBA153;">
@@ -127,8 +136,8 @@ def render_reset_email(reset_link: str) -> str:
             </td></tr>
             <tr><td style="padding:24px 40px;border-top:1px solid rgba(203,161,83,0.18);background:#141414;">
               <div style="font-size:11px;color:#6a6a6a;line-height:1.7;">
-                Fashion Interior · Rajarhat Main Rd, opposite Rupam Motors, Atghara, Rajarhat, New Town, Kolkata 700136<br/>
-                © 2025 Fashion Interior. All Rights Reserved.
+                Urban Interiors · Chinar Park, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
+                © 2025 Urban Interiors. All Rights Reserved.
               </div>
             </td></tr>
           </table>
@@ -143,9 +152,9 @@ async def send_reset_email(to_email: str, reset_link: str) -> bool:
         logger.warning(f"[Resend NOT configured] Password reset link for {to_email}: {reset_link}")
         return False
     params = {
-        "from": f"Fashion Interior <{SENDER_EMAIL}>",
+        "from": f"Urban Interiors <{SENDER_EMAIL}>",
         "to": [to_email],
-        "subject": "Reset your Fashion Interior admin password",
+        "subject": "Reset your Urban Interiors admin password",
         "html": render_reset_email(reset_link),
     }
     try:
@@ -184,7 +193,7 @@ def render_lead_email(inq: dict) -> str:
             </td></tr>
             <tr><td style="padding:18px 40px;border-top:1px solid rgba(203,161,83,0.18);background:#141414;">
               <div style="font-size:11px;color:#6a6a6a;line-height:1.7;">
-                Fashion Interior · Rajarhat Main Rd, Atghara, New Town, Kolkata 700136<br/>
+                Urban Interiors · Chinar Park, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
                 Submitted at {esc(inq.get('created_at'))}
               </div>
             </td></tr>
@@ -200,7 +209,7 @@ async def send_lead_email(inq: dict) -> bool:
         logger.info(f"[Lead notify skipped] {inq.get('name')} / {inq.get('phone')} — RESEND not configured")
         return False
     params = {
-        "from": f"Fashion Interior Leads <{SENDER_EMAIL}>",
+        "from": f"Urban Interiors Leads <{SENDER_EMAIL}>",
         "to": [NOTIFY_EMAIL],
         "reply_to": inq.get("email") or SENDER_EMAIL,
         "subject": f"New inquiry — {inq.get('name')} ({inq.get('service') or 'general'})",
@@ -288,21 +297,21 @@ class ReorderIn(BaseModel):
 
 
 class BusinessInfoIn(BaseModel):
-    business_name: str = "Fashion Interior"
-    address: str = "Rajarhat Main Rd, opposite Rupam Motors, Atghara, Rajarhat, New Town, Kolkata, West Bengal 700136"
-    phone: str = "09007855295"
-    whatsapp: str = "09007855295"
-    email: str = "info@fashioninterior.com"
-    hours: str = "Every day, 9:15 AM – 8:30 PM"
-    instagram: str = ""
+    business_name: str = "Urban Interiors"
+    address: str = "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136"
+    phone: str = "8981230518"
+    whatsapp: str = "8981230518"
+    email: str = "urban.interiors.kol@gmail.com"
+    hours: str = "Everyday · 24 hours open"
+    instagram: str = "https://www.instagram.com/urban.interiors.kol?igsh=MTdrNWFiOTFiamdncA=="
     facebook: str = ""
-    google_maps_url: str = "https://maps.google.com/?q=Fashion+Interior+Rajarhat+Kolkata"
+    google_maps_url: str = "https://maps.google.com/?q=Urban+Interiors+Chinar+Park+Kolkata"
 
 
 # ---------- Public routes ----------
 @api.get("/")
 async def root():
-    return {"message": "Fashion Interior API", "status": "ok"}
+    return {"message": "Urban Interiors API", "status": "ok"}
 
 
 @api.get("/portfolio", response_model=List[PortfolioOut])

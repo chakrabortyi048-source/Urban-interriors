@@ -8,11 +8,11 @@ export default function Footer() {
     api.get("/business-info").then((r) => setInfo(r.data || {})).catch(() => {});
   }, []);
 
-  const phone = info?.phone || "09007855295";
+  const phone = info?.phone || "8981230518";
   const address =
     info?.address ||
-    "Rajarhat Main Rd, opposite Rupam Motors, Atghara, Rajarhat, New Town, Kolkata 700136";
-  const hours = info?.hours || "Every day, 9:15 AM – 8:30 PM";
+    "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136";
+  const hours = info?.hours || "Everyday · 24 hours open";
 
   const links = [
     { id: "about", label: "About" },
@@ -41,15 +41,14 @@ export default function Footer() {
               className="font-serif-display"
               style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.05 }}
             >
-              Fashion <span style={{ color: "#CBA153" }}>Interior</span>
+              Urban <span style={{ color: "#CBA153" }}>Interiors</span>
             </div>
             <p
               className="mt-5 max-w-md text-sm"
               style={{ color: "rgba(249,248,246,0.6)", lineHeight: 1.8 }}
             >
-              A Kolkata interior studio crafting cinematic wallpapers, bespoke flooring and
-              quietly luxurious spaces — for homes and storefronts that deserve to be
-              remembered.
+              A Chinar Park interior studio for painting, bespoke furniture, flooring,
+              and landscape design — turning houses into dream homes.
             </p>
             <div className="flex items-center gap-3 mt-7">
               {info?.instagram && (
@@ -131,7 +130,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-7 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs" style={{ color: "rgba(249,248,246,0.5)" }}>
-          <div data-testid="footer-copy">© 2025 Fashion Interior. All Rights Reserved.</div>
+          <div data-testid="footer-copy">© 2025 Urban Interiors. All Rights Reserved.</div>
           <div className="overline" style={{ letterSpacing: "0.3em" }}>
             Crafted in Kolkata
           </div>

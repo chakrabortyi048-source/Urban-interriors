@@ -14,7 +14,7 @@ export default function PageLoader() {
   }, []);
 
   if (hidden) return null;
-  const word = "FASHION INTERIOR";
+  const word = "URBAN INTERIORS";
   return (
     <div
       className="fi-loader"
@@ -34,7 +34,7 @@ export default function PageLoader() {
       </div>
       <div className="fi-loader-line" />
       <div className="overline" style={{ color: "rgba(203,161,83,0.8)", letterSpacing: "0.4em" }}>
-        Kolkata · Since 1985
+        Kolkata · Chinar Park
       </div>
     </div>
   );

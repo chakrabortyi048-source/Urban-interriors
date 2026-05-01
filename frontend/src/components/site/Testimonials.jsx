@@ -31,10 +31,9 @@ export default function Testimonials() {
               className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
               style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05 }}
             >
-              <span style={{ color: "#CBA153", fontStyle: "italic" }}>{items.length}</span>{" "}
-              real reviews,
+              Real reviews,
               <br />
-              every one a five-star.
+              from <span style={{ color: "#CBA153", fontStyle: "italic" }}>real Chinar Park clients.</span>
             </h2>
           </div>
           <div className="flex md:justify-end fi-reveal fi-reveal-delay-2">
@@ -45,7 +44,7 @@ export default function Testimonials() {
                 ))}
               </div>
               <div className="text-sm" style={{ color: "#5a5a5a" }}>
-                5.0 / 5 · Verified Google Reviews
+                4.7 / 5 · Verified Google Reviews
               </div>
             </div>
           </div>

@@ -3,19 +3,13 @@ import { MapPin, Phone, Clock, MessageCircle, ArrowRight, Send, CheckCircle2 } f
 import { api, formatApiError } from "../../lib/api";
 
 const SERVICES = [
-  "Wallpaper",
-  "PVC Flooring",
-  "Laminates",
-  "Customised Wallpaper",
-  "PVC Planks",
-  "Wooden Flooring",
-  "Artificial Grass",
-  "Artificial Planters",
-  "Blinds",
-  "Customised Blinds",
-  "Glass Film",
-  "PVC Laminates",
-  "3D Panels",
+  "Interior Painting",
+  "Drywall Repair",
+  "Wood Staining",
+  "Bespoke Furniture",
+  "Floor Sanding & Polishing",
+  "Wood & Laminate Flooring",
+  "Landscape Design",
   "Full Home Makeover",
   "Other",
 ];
@@ -77,12 +71,12 @@ export default function Contact() {
     }
   };
 
-  const phone = info?.phone || "09007855295";
+  const phone = info?.phone || "8981230518";
   const whatsapp = (info?.whatsapp || phone).replace(/\D/g, "");
   const address =
     info?.address ||
-    "Rajarhat Main Rd, opposite Rupam Motors, Atghara, Rajarhat, New Town, Kolkata, West Bengal 700136";
-  const hours = info?.hours || "Every day, 9:15 AM – 8:30 PM";
+    "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136";
+  const hours = info?.hours || "Everyday · 24 hours open";
 
   return (
     <section
@@ -277,8 +271,8 @@ export default function Contact() {
                 data-testid="contact-map"
               >
                 <iframe
-                  title="Fashion Interior Map"
-                  src="https://www.google.com/maps?q=Fashion+Interior+Rajarhat+Main+Road+Atghara+Kolkata&output=embed"
+                  title="Urban Interiors Map"
+                  src="https://www.google.com/maps?q=Urban+Interiors+Chinar+Park+Atghara+Tegharia+Newtown+Kolkata&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0, filter: "grayscale(0.2) contrast(1.05)" }}
