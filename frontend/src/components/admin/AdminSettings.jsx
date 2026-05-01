@@ -237,16 +237,21 @@ export default function AdminSettings({ me, setMe, onLogout }) {
             <div className="text-sm" style={{ color: "#3a3a3a", lineHeight: 1.7 }}>
               {gStatus?.configured ? (
                 <div className="flex items-center gap-2" style={{ color: "#3a8a55" }}>
-                  <Star size={14} className="fi-star" /> Configured · Place ID:{" "}
+                  <Star size={14} className="fi-star" /> Configured via{" "}
+                  <strong style={{ color: "#1A1A1A" }}>{gStatus.provider === "serpapi" ? "SerpAPI" : "Google Places"}</strong>
+                  · Place ID:{" "}
                   <span className="font-mono text-xs" style={{ color: "#737373" }}>
                     {gStatus.place_id?.slice(0, 18)}…
                   </span>
                 </div>
               ) : (
-                <div style={{ color: "#a33" }}>
-                  Not yet configured. Add <code>GOOGLE_MAPS_API_KEY</code> and{" "}
-                  <code>GOOGLE_PLACE_ID</code> to <code>backend/.env</code> and restart the backend.
-                  Then click "Sync now" below.
+                <div style={{ color: "#a33", lineHeight: 1.7 }}>
+                  Not configured. Choose <strong>one</strong> of these (both work — SerpAPI is the easy one, no credit card):
+                  <ul className="mt-2 ml-4 list-disc text-xs" style={{ color: "#5a5a5a" }}>
+                    <li><strong>SerpAPI (recommended)</strong> — sign up free at <code>serpapi.com</code> (no card), copy the key, then in <code>backend/.env</code> set <code>SERPAPI_KEY</code> and <code>GOOGLE_PLACE_ID</code>.</li>
+                    <li><strong>Google Places API</strong> — needs a billing-enabled Google Cloud account; set <code>GOOGLE_MAPS_API_KEY</code> and <code>GOOGLE_PLACE_ID</code>.</li>
+                  </ul>
+                  After adding to <code>.env</code>, restart the backend and click "Sync Now".
                 </div>
               )}
             </div>

@@ -40,6 +40,7 @@ NOTIFY_EMAIL = os.environ.get('NOTIFY_EMAIL', ADMIN_EMAIL).strip()
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '').strip()
 GOOGLE_PLACE_ID = os.environ.get('GOOGLE_PLACE_ID', '').strip()
+SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '').strip()
 JWT_ALG = "HS256"
 
 if RESEND_API_KEY:
@@ -237,72 +238,121 @@ def _review_fingerprint(name: str, text: str) -> str:
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
-async def sync_google_reviews() -> dict:
-    """
-    Pull reviews from Google Places API (New) and upsert them into the
-    `testimonials` collection. Returns a small status dict.
+async def _fetch_reviews_serpapi() -> tuple[list, dict]:
+    """Fetch reviews via SerpAPI (free tier, no payment method required)."""
+    url = "https://serpapi.com/search.json"
+    params = {
+        "engine": "google_maps_reviews",
+        "place_id": GOOGLE_PLACE_ID,
+        "api_key": SERPAPI_KEY,
+        "sort_by": "newestFirst",
+        "hl": "en",
+    }
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.get(url, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    reviews_raw = data.get("reviews", []) or []
+    place_info = data.get("place_info", {}) or {}
+    normalized = []
+    for r in reviews_raw:
+        normalized.append({
+            "name": (r.get("user") or {}).get("name") or r.get("author_name") or "Google reviewer",
+            "rating": int(r.get("rating") or 5),
+            "text": r.get("snippet") or r.get("description") or "",
+            "when": r.get("date") or r.get("published_at_date") or "",
+            "is_local_guide": ((r.get("user") or {}).get("local_guide") is True),
+            "review_count": ((r.get("user") or {}).get("reviews") or None),
+        })
+    meta = {"rating": place_info.get("rating"), "review_count": place_info.get("reviews")}
+    return normalized, meta
 
-    Safe to call when not configured — returns a friendly "not configured"
-    response without raising.
-    """
-    status = {"configured": False, "fetched": 0, "added": 0, "updated": 0, "error": None, "ran_at": datetime.now(timezone.utc).isoformat()}
-    if not GOOGLE_MAPS_API_KEY or not GOOGLE_PLACE_ID:
-        status["error"] = "GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID must be set in backend/.env"
-        await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
-        return status
-    status["configured"] = True
 
+async def _fetch_reviews_google_places() -> tuple[list, dict]:
+    """Fetch reviews via official Google Places API (New). Requires billing."""
     url = f"https://places.googleapis.com/v1/places/{GOOGLE_PLACE_ID}"
     headers = {
         "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
         "X-Goog-FieldMask": "id,rating,userRatingCount,reviews",
     }
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.get(url, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+    reviews_raw = data.get("reviews", []) or []
+    normalized = []
+    for r in reviews_raw:
+        author = r.get("authorAttribution") or {}
+        text_obj = r.get("text") or r.get("originalText") or {}
+        text = text_obj.get("text") if isinstance(text_obj, dict) else (text_obj or "")
+        normalized.append({
+            "name": author.get("displayName") or "Google reviewer",
+            "rating": int(r.get("rating") or 5),
+            "text": text or "",
+            "when": r.get("relativePublishTimeDescription") or "",
+            "is_local_guide": False,
+            "review_count": None,
+        })
+    meta = {"rating": data.get("rating"), "review_count": data.get("userRatingCount")}
+    return normalized, meta
+
+
+async def sync_google_reviews() -> dict:
+    """
+    Sync Google reviews into the testimonials collection. Uses SerpAPI when a
+    SERPAPI_KEY is set (free, no credit card), otherwise falls back to the
+    official Google Places API (requires billing).
+    """
+    status = {
+        "configured": False,
+        "provider": None,
+        "fetched": 0, "added": 0, "updated": 0,
+        "error": None,
+        "ran_at": datetime.now(timezone.utc).isoformat(),
+    }
+    has_serp = bool(SERPAPI_KEY and GOOGLE_PLACE_ID)
+    has_google = bool(GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID)
+    if not has_serp and not has_google:
+        status["error"] = "Set SERPAPI_KEY (free, no credit card) OR GOOGLE_MAPS_API_KEY in backend/.env — plus GOOGLE_PLACE_ID — and restart the backend."
+        await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
+        return status
+    status["configured"] = True
+    status["provider"] = "serpapi" if has_serp else "google_places"
+
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.get(url, headers=headers)
-            resp.raise_for_status()
-            data = resp.json()
+        if has_serp:
+            normalized, meta = await _fetch_reviews_serpapi()
+        else:
+            normalized, meta = await _fetch_reviews_google_places()
     except httpx.HTTPStatusError as e:
         body = e.response.text[:300] if e.response is not None else ""
-        status["error"] = f"Google API HTTP {e.response.status_code}: {body}"
+        status["error"] = f"{status['provider']} HTTP {e.response.status_code}: {body}"
         logger.error(status["error"])
         await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
         return status
     except Exception as e:
-        status["error"] = f"Google API error: {e}"
+        status["error"] = f"{status['provider']} error: {e}"
         logger.error(status["error"])
         await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
         return status
 
-    reviews = data.get("reviews", []) or []
-    status["fetched"] = len(reviews)
-    # Determine starting `order` for any new reviews — append after existing ones.
+    status["fetched"] = len(normalized)
     base_order = await db.testimonials.count_documents({})
     new_order = base_order
-    for rev in reviews:
-        author = (rev.get("authorAttribution") or {})
-        name = author.get("displayName") or "Google reviewer"
-        text_obj = rev.get("text") or rev.get("originalText") or {}
-        text = text_obj.get("text") if isinstance(text_obj, dict) else (text_obj or "")
-        rating = int(rev.get("rating") or 5)
-        when = rev.get("relativePublishTimeDescription") or ""
-        fp = _review_fingerprint(name, text or "")
+
+    for rev in normalized:
+        fp = _review_fingerprint(rev["name"], rev["text"])
         existing = await db.testimonials.find_one({"google_fingerprint": fp})
         if existing:
             await db.testimonials.update_one(
                 {"google_fingerprint": fp},
-                {"$set": {"name": name, "rating": rating, "text": text, "when": when, "source": "google", "last_synced": status["ran_at"]}},
+                {"$set": {**rev, "source": "google", "last_synced": status["ran_at"]}},
             )
             status["updated"] += 1
         else:
             await db.testimonials.insert_one({
                 "id": str(uuid.uuid4()),
-                "name": name,
-                "rating": rating,
-                "text": text or "",
-                "when": when,
-                "is_local_guide": False,
-                "review_count": None,
+                **rev,
                 "order": new_order,
                 "source": "google",
                 "google_fingerprint": fp,
@@ -311,10 +361,10 @@ async def sync_google_reviews() -> dict:
             status["added"] += 1
             new_order += 1
 
-    status["place_rating"] = data.get("rating")
-    status["place_review_count"] = data.get("userRatingCount")
+    status["place_rating"] = meta.get("rating")
+    status["place_review_count"] = meta.get("review_count")
     await db.system.update_one({"id": "google_sync"}, {"$set": status | {"id": "google_sync"}}, upsert=True)
-    logger.info(f"Google sync done: {status}")
+    logger.info(f"Google sync done ({status['provider']}): {status}")
     return status
 
 
@@ -577,8 +627,11 @@ async def admin_reorder_portfolio(payload: ReorderIn, user: dict = Depends(get_c
 @api.get("/admin/google-sync/status")
 async def admin_google_sync_status(user: dict = Depends(get_current_admin)):
     doc = await db.system.find_one({"id": "google_sync"}, {"_id": 0})
+    has_serp = bool(SERPAPI_KEY and GOOGLE_PLACE_ID)
+    has_google = bool(GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID)
     return {
-        "configured": bool(GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID),
+        "configured": has_serp or has_google,
+        "provider": "serpapi" if has_serp else ("google_places" if has_google else None),
         "place_id": GOOGLE_PLACE_ID or "",
         "last_run": doc or {"ran_at": None, "fetched": 0, "added": 0, "updated": 0, "error": None},
     }
@@ -873,18 +926,20 @@ async def on_startup():
     await seed_testimonials()
     await seed_business_info()
 
-    # Google Reviews auto-sync every 6 hours (only when configured).
-    if GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID and not scheduler.running:
+    # Google Reviews auto-sync every 12 hours when configured (SerpAPI free tier = 100/mo).
+    has_serp = bool(SERPAPI_KEY and GOOGLE_PLACE_ID)
+    has_google = bool(GOOGLE_MAPS_API_KEY and GOOGLE_PLACE_ID)
+    if (has_serp or has_google) and not scheduler.running:
         scheduler.add_job(
             sync_google_reviews,
-            IntervalTrigger(hours=6),
+            IntervalTrigger(hours=12),
             id="google_reviews_sync",
-            name="Sync Google reviews every 6h",
+            name="Sync Google reviews every 12h",
             replace_existing=True,
             next_run_time=datetime.now(timezone.utc) + timedelta(seconds=10),
         )
         scheduler.start()
-        logger.info("Google reviews scheduler started — runs every 6h")
+        logger.info(f"Google reviews scheduler started — runs every 12h via {'SerpAPI' if has_serp else 'Google Places'}")
 
 
 @app.on_event("shutdown")
