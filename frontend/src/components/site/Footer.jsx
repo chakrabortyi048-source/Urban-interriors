@@ -11,7 +11,8 @@ export default function Footer() {
   const phone = info?.phone || "8981230518";
   const address =
     info?.address ||
-    "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136";
+    "211 Road, Chinar Park, Near Bharat Petroleum, Atghara, Tegharia, Newtown, Kolkata 700136";
+  const secondaryAddress = info?.secondary_address || "";
   const hours = info?.hours || "Everyday · 24 hours open";
 
   const links = [
@@ -115,6 +116,23 @@ export default function Footer() {
                 <MapPin size={16} style={{ color: "#CBA153", flexShrink: 0, marginTop: 3 }} />
                 <span style={{ lineHeight: 1.7 }}>{address}</span>
               </div>
+              {secondaryAddress && (
+                <div
+                  className="flex items-start gap-3"
+                  data-testid="footer-secondary-address"
+                >
+                  <MapPin size={16} style={{ color: "#CBA153", flexShrink: 0, marginTop: 3, opacity: 0.6 }} />
+                  <span style={{ lineHeight: 1.7 }}>
+                    <span
+                      className="overline block"
+                      style={{ color: "#CBA153", fontSize: "0.55rem", marginBottom: 2 }}
+                    >
+                      Branch
+                    </span>
+                    {secondaryAddress}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-3">
                 <Phone size={16} style={{ color: "#CBA153" }} />
                 <a href={`tel:${phone}`} className="hover:text-white">

@@ -75,7 +75,8 @@ export default function Contact() {
   const whatsapp = (info?.whatsapp || phone).replace(/\D/g, "");
   const address =
     info?.address ||
-    "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136";
+    "211 Road, Chinar Park, Near Bharat Petroleum, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136";
+  const secondaryAddress = info?.secondary_address || "";
   const hours = info?.hours || "Everyday · 24 hours open";
 
   return (
@@ -224,6 +225,18 @@ export default function Contact() {
                     <p className="mt-2 text-sm" style={{ lineHeight: 1.7, color: "rgba(249,248,246,0.85)" }}>
                       {address}
                     </p>
+                    {secondaryAddress && (
+                      <p
+                        className="mt-3 text-sm"
+                        style={{ lineHeight: 1.7, color: "rgba(249,248,246,0.7)" }}
+                        data-testid="contact-secondary-address"
+                      >
+                        <span className="overline block mb-1" style={{ color: "#CBA153", fontSize: "0.6rem" }}>
+                          Branch
+                        </span>
+                        {secondaryAddress}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-start gap-4 mt-6">
@@ -272,7 +285,7 @@ export default function Contact() {
               >
                 <iframe
                   title="Urban Interiors Map"
-                  src="https://www.google.com/maps?q=Urban+Interiors+Chinar+Park+Atghara+Tegharia+Newtown+Kolkata&output=embed"
+                  src="https://www.google.com/maps?q=Urban+Interiors+by+Aaloy+Chinar+Park+Atghara+Kolkata&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0, filter: "grayscale(0.2) contrast(1.05)" }}

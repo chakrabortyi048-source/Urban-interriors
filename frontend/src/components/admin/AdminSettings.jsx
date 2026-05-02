@@ -216,7 +216,8 @@ export default function AdminSettings({ me, setMe, onLogout }) {
           <Section title="Business information" desc="Address, phone, hours and socials shown across the public site.">
             <form onSubmit={saveInfo} className="grid grid-cols-1 gap-5">
               <FieldRow label="Business name" value={info.business_name || ""} onChange={(e) => setInfo({ ...info, business_name: e.target.value })} testid="settings-info-name" />
-              <FieldRow label="Address" value={info.address || ""} onChange={(e) => setInfo({ ...info, address: e.target.value })} testid="settings-info-address" />
+              <FieldRow label="Primary address" value={info.address || ""} onChange={(e) => setInfo({ ...info, address: e.target.value })} testid="settings-info-address" />
+              <FieldRow label="Branch address (optional)" value={info.secondary_address || ""} onChange={(e) => setInfo({ ...info, secondary_address: e.target.value })} testid="settings-info-secondary-address" />
               <FieldRow label="Phone" value={info.phone || ""} onChange={(e) => setInfo({ ...info, phone: e.target.value })} testid="settings-info-phone" />
               <FieldRow label="WhatsApp number" value={info.whatsapp || ""} onChange={(e) => setInfo({ ...info, whatsapp: e.target.value })} testid="settings-info-whatsapp" />
               <FieldRow label="Email" value={info.email || ""} onChange={(e) => setInfo({ ...info, email: e.target.value })} testid="settings-info-email" />

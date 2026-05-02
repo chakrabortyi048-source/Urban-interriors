@@ -143,7 +143,7 @@ def render_reset_email(reset_link: str) -> str:
             </td></tr>
             <tr><td style="padding:24px 40px;border-top:1px solid rgba(203,161,83,0.18);background:#141414;">
               <div style="font-size:11px;color:#6a6a6a;line-height:1.7;">
-                Urban Interiors · Chinar Park, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
+                Urban Interiors · 211 Road, Chinar Park, Near Bharat Petroleum, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
                 © 2025 Urban Interiors. All Rights Reserved.
               </div>
             </td></tr>
@@ -200,7 +200,7 @@ def render_lead_email(inq: dict) -> str:
             </td></tr>
             <tr><td style="padding:18px 40px;border-top:1px solid rgba(203,161,83,0.18);background:#141414;">
               <div style="font-size:11px;color:#6a6a6a;line-height:1.7;">
-                Urban Interiors · Chinar Park, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
+                Urban Interiors · 211 Road, Chinar Park, Near Bharat Petroleum, Atghara, Tegharia, Newtown, Kolkata 700136<br/>
                 Submitted at {esc(inq.get('created_at'))}
               </div>
             </td></tr>
@@ -442,7 +442,8 @@ class ReorderIn(BaseModel):
 
 class BusinessInfoIn(BaseModel):
     business_name: str = "Urban Interiors"
-    address: str = "Chinar Park, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136"
+    address: str = "211 Road, Chinar Park, Near Bharat Petroleum, Atghara, Tegharia, Newtown, Kolkata, West Bengal 700136"
+    secondary_address: str = "Kaikhali, KNI Avenue, Near Indraprastha Complex, Kolkata 700052"
     phone: str = "8981230518"
     whatsapp: str = "8981230518"
     email: str = "urban.interiors.kol@gmail.com"
