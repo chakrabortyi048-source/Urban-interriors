@@ -78,3 +78,13 @@ Seeded with neutral titles — owner will rename via admin dashboard.
   - Four **Pillar glass cards** at the bottom, each floating with a different 3D cycle and staggered delays.
 - New CSS: `fi-3d-stage` (perspective 1400px), `fi-3d-layer`, `fi-3d-in`, keyframes `fi-float3d-a..d`, text helpers `fi-text-3d-glow`, `fi-text-3d-gold`.
 - Rest of the site (Hero, Portfolio, Services, Why Us, Reviews, Contact, Footer) **unchanged**.
+
+
+## Feb 2026 — About mobile fit + mouse-tilt parallax
+- **Mobile fix**: the About image (1:1 square 720×711) was cropping on phones. Now fills full width at natural aspect anchored to top with `object-contain`, gradient-fades into the dark section body; all texts flow below *inside the same dark backdrop*. Section min-height = `calc(100vw + 680px)`.
+- **Desktop** remains full-bleed immersive with `object-cover`.
+- **Mouse-tilt parallax** (desktop, `pointer: fine` only):
+  - Background image parallaxes subtly with cursor X/Y.
+  - Headline tilts in 3D (rotateX/Y) opposite to cursor → depth illusion.
+  - Studio Note card + each pillar tilt with varied multipliers → layers shear convincingly.
+  - Throttled via `requestAnimationFrame`; disabled on touch pointers.
