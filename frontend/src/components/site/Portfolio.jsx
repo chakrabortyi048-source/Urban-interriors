@@ -38,7 +38,7 @@ export default function Portfolio() {
             />
           </div>
           <p
-            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"
+            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2 fi-glow-text"
             style={{ color: "rgba(249,248,246,0.65)", lineHeight: 1.7 }}
           >
             Every photograph below is a real installation by our team — homes, sunrooms,

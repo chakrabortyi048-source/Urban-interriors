@@ -49,7 +49,7 @@ export default function WhyChooseUs() {
               testId="why-heading"
             />
             <p
-              className="mt-6 fi-reveal fi-reveal-delay-2"
+              className="mt-6 fi-reveal fi-reveal-delay-2 fi-glow-text"
               style={{
                 color: "rgba(249,248,246,0.65)",
                 lineHeight: 1.8,

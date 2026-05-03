@@ -1019,3 +1019,75 @@ html.fi-premium-cursor .cursor-pointer-fi:hover {
 /* Hide native focus ring around the premium cursor artifacts */
 .fi-cursor-ring:focus, .fi-cursor-dot:focus,
 .fi-scroll-rail:focus { outline: none; }
+
+/* ================================================================
+   Gold sparkle sprinkle on heading/subheading hover
+   ================================================================ */
+
+/* Sparkle particle (DOM nodes appended to body by GoldSprinkle.jsx) */
+.fi-sparkle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #FFE9B0 0%,
+    #CBA153 55%,
+    rgba(203, 161, 83, 0) 70%
+  );
+  box-shadow:
+    0 0 6px rgba(255, 233, 176, 0.9),
+    0 0 16px rgba(203, 161, 83, 0.6),
+    0 0 30px rgba(203, 161, 83, 0.35);
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  animation-name: fi-sparkle-drift;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+}
+@keyframes fi-sparkle-drift {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  70% {
+    opacity: 0.85;
+  }
+  100% {
+    transform:
+      translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -50px)))
+      scale(0.15);
+    opacity: 0;
+  }
+}
+
+/* Glow halo on the hovered heading / subheading */
+.fi-glow-text {
+  transition:
+    text-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fi-glow-text.is-glowing {
+  text-shadow:
+    0 0 4px rgba(255, 233, 176, 0.55),
+    0 0 14px rgba(203, 161, 83, 0.50),
+    0 0 28px rgba(203, 161, 83, 0.35),
+    0 0 56px rgba(203, 161, 83, 0.20);
+}
+/* Slightly lift saturation/brightness when glowing */
+.fi-glow-text.is-glowing img,
+.fi-glow-text.is-glowing svg {
+  filter: brightness(1.05) saturate(1.1);
+}
+/* Disable on touch devices for performance */
+@media (hover: none), (pointer: coarse) {
+  .fi-glow-text.is-glowing { text-shadow: none; }
+  .fi-sparkle { display: none; }
+}

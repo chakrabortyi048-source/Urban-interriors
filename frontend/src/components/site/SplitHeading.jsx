@@ -69,7 +69,7 @@ export default function SplitHeading({
   return (
     <Tag
       ref={ref}
-      className={`fi-split ${on ? "in-view" : ""} ${className}`}
+      className={`fi-split fi-glow-text ${on ? "in-view" : ""} ${className}`}
       style={style}
       data-testid={testId}
     >
@@ -117,7 +117,7 @@ export function CharReveal({
   return (
     <Tag
       ref={ref}
-      className={`fi-chars-reveal ${on ? "in-view" : ""} ${className}`}
+      className={`fi-chars-reveal fi-glow-text ${on ? "in-view" : ""} ${className}`}
       style={style}
       data-testid={testId}
     >

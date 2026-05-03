@@ -104,7 +104,7 @@ export default function Contact() {
               testId="contact-heading"
             />
             <p
-              className="mt-5 fi-reveal fi-reveal-delay-2"
+              className="mt-5 fi-reveal fi-reveal-delay-2 fi-glow-text"
               style={{ color: "#3a3a3a", lineHeight: 1.7, maxWidth: "480px" }}
             >
               Drop a few lines below and we'll call you back at your preferred time.

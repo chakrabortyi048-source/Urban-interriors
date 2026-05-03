@@ -115,3 +115,13 @@ Seeded with neutral titles — owner will rename via admin dashboard.
   - Image entrance: rises in over 1.4s, corner brackets pop in with staggered delays.
   - Buttons get an **aurora ripple** burst on hover.
 - New CSS: `fi-hero3d-stage`, `fi-hero3d-word`, `fi-hero-word-3d`, `fi-gold-shine`, `fi-typewriter`, `fi-vert-cascade`, `fi-halo-pulse`, `fi-aurora-ripple`, `.fi-corner.tl/tr/bl/br`.
+
+
+## Feb 2026 — Gold Sparkle Sprinkle on Headings + Subtitles
+- New global component `/app/frontend/src/components/site/GoldSprinkle.jsx`:
+  - On desktop only (`pointer:fine` + `hover:hover`). Listens for `mousemove`.
+  - When cursor enters any element with class `fi-glow-text`, the heading/subtitle gains a soft multi-layer gold halo via `text-shadow`; gold sparkle particles spawn at cursor position, drift upward at random angle, fade over 700–1200ms.
+  - Throttled at 38ms; auto-cleans nodes; resets on document `mouseleave`.
+- `SplitHeading` + `CharReveal` auto-include `fi-glow-text`. Manually tagged on Hero headline+subtitle, About body paragraphs, and section descriptions.
+- New CSS: `.fi-sparkle`, `@keyframes fi-sparkle-drift`, `.fi-glow-text.is-glowing`, `@media (hover:none)` disable rule.
+- Wired into `HomePage.jsx` after `PremiumCursor`.

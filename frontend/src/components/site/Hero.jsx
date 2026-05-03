@@ -135,7 +135,7 @@ export default function Hero() {
 
             {/* HEADLINE — premium 3D word entrance */}
             <h1
-              className="font-serif-display text-white"
+              className="font-serif-display text-white fi-glow-text"
               style={{
                 fontSize: "clamp(2.8rem, 7vw, 6.4rem)",
                 lineHeight: 1.02,
@@ -166,7 +166,7 @@ export default function Hero() {
 
             {/* SUBTITLE — char-by-char typewriter */}
             <p
-              className="mt-7 max-w-xl fi-typewriter"
+              className="mt-7 max-w-xl fi-typewriter fi-glow-text"
               style={{
                 fontSize: "1.05rem",
                 fontWeight: 300,

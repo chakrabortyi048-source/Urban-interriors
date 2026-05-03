@@ -47,7 +47,7 @@ export default function Services() {
             />
           </div>
           <p
-            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"
+            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2 fi-glow-text"
             style={{ color: "#3a3a3a", lineHeight: 1.7 }}
           >
             From a single feature wall to a turnkey home makeover, every service is

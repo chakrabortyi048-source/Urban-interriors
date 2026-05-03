@@ -272,7 +272,7 @@ export default function About() {
         >
           <div className="lg:col-span-7 fi-3d-layer fi-float3d-b">
             <p
-              className="font-serif-display"
+              className="font-serif-display fi-glow-text"
               style={{
                 color: "rgba(249,248,246,0.95)",
                 fontSize: "clamp(1rem, 1.6vw, 1.35rem)",
@@ -293,7 +293,7 @@ export default function About() {
               we bring your vision to life.
             </p>
             <p
-              className="mt-5 md:mt-6"
+              className="mt-5 md:mt-6 fi-glow-text"
               style={{
                 color: "rgba(249,248,246,0.78)",
                 fontSize: "0.95rem",
