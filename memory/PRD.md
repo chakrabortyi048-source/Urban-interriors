@@ -88,3 +88,14 @@ Seeded with neutral titles — owner will rename via admin dashboard.
   - Headline tilts in 3D (rotateX/Y) opposite to cursor → depth illusion.
   - Studio Note card + each pillar tilt with varied multipliers → layers shear convincingly.
   - Throttled via `requestAnimationFrame`; disabled on touch pointers.
+
+
+## Feb 2026 — Premium Gold Cursor + Scroll-to-Explore Rail
+- `/app/frontend/src/components/site/PremiumCursor.jsx`:
+  - Custom cursor on `pointer:fine` + `hover:hover` devices (auto-disabled on mobile).
+  - Gold outer ring (32px) + inner gold dot (6px), eased lerp motion.
+  - Ring **magnetizes** (56px, gold fill, stronger glow) on hover over `a`, `button`, `input`, `textarea`, `[role=button]`, `[data-cursor=magnet]`, `.cursor-pointer-fi`.
+  - Ring contracts on mousedown.
+  - **Scroll-to-explore rail** on right edge: gold track + glowing gold fill + vertical "SCROLL" label.
+- Wired into `HomePage.jsx` as first child.
+- CSS classes added to `/app/frontend/src/index.css`: `.fi-cursor-ring`, `.fi-cursor-dot`, `.fi-scroll-rail*`, and `html.fi-premium-cursor *` cursor-hiding (preserves text caret).

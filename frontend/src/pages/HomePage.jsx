@@ -10,6 +10,7 @@ import WhyChooseUs from "../components/site/WhyChooseUs";
 import Testimonials from "../components/site/Testimonials";
 import Contact from "../components/site/Contact";
 import Footer from "../components/site/Footer";
+import PremiumCursor from "../components/site/PremiumCursor";
 
 export default function HomePage() {
   useRevealAll(".fi-reveal");
@@ -37,6 +38,7 @@ export default function HomePage() {
 
   return (
     <div data-testid="home-page" style={{ background: "var(--fi-offwhite)" }}>
+      <PremiumCursor />
       <Navbar />
       <Hero />
       <About />
