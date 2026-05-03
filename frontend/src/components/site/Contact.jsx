@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Clock, MessageCircle, ArrowRight, Send, CheckCircle2 } from "lucide-react";
 import { api, formatApiError } from "../../lib/api";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 const SERVICES = [
   "Interior Painting",
@@ -90,21 +91,18 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Form */}
           <div>
-            <div className="overline fi-reveal" style={{ color: "#CBA153" }}>
-              Book a free consultation
-            </div>
-            <h2
-              className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
+            <SpreadOverline text="Book a free consultation" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Tell us about"
+              accent="your space."
+              className="font-serif-display mt-5"
               style={{
                 fontSize: "clamp(2.2rem, 5vw, 4rem)",
                 lineHeight: 1.05,
                 color: "#1A1A1A",
               }}
-            >
-              Tell us about
-              <br />
-              <span style={{ color: "#CBA153", fontStyle: "italic" }}>your space.</span>
-            </h2>
+              testId="contact-heading"
+            />
             <p
               className="mt-5 fi-reveal fi-reveal-delay-2"
               style={{ color: "#3a3a3a", lineHeight: 1.7, maxWidth: "480px" }}

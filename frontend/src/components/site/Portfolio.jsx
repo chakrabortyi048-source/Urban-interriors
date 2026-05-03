@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, ArrowUpRight } from "lucide-react";
 import { api } from "../../lib/api";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 export default function Portfolio() {
   const [items, setItems] = useState([]);
@@ -27,19 +28,14 @@ export default function Portfolio() {
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div>
-            <div className="overline fi-reveal" style={{ color: "#CBA153" }}>
-              Recent Work
-            </div>
-            <h2
-              className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05 }}
-            >
-              Selected projects,
-              <br />
-              <span style={{ color: "#CBA153", fontStyle: "italic" }}>
-                from across Kolkata.
-              </span>
-            </h2>
+            <SpreadOverline text="Recent Work" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Selected projects,"
+              accent="from across Kolkata."
+              className="font-serif-display mt-5"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05, color: "#F9F8F6" }}
+              testId="portfolio-heading"
+            />
           </div>
           <p
             className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"

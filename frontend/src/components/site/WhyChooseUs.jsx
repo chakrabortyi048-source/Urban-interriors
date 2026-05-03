@@ -1,4 +1,5 @@
 import { Clock, IndianRupee, Hammer, ShieldCheck, Heart } from "lucide-react";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 const points = [
   {
@@ -39,19 +40,14 @@ export default function WhyChooseUs() {
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-5">
-            <div className="overline fi-reveal" style={{ color: "#CBA153" }}>
-              Why Fashion Interior
-            </div>
-            <h2
-              className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05 }}
-            >
-              Five reasons our
-              <br />
-              <span style={{ color: "#CBA153", fontStyle: "italic" }}>
-                clients keep coming back.
-              </span>
-            </h2>
+            <SpreadOverline text="Why Urban Interiors" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Five reasons our"
+              accent="clients keep coming back."
+              className="font-serif-display mt-5"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05, color: "#F9F8F6" }}
+              testId="why-heading"
+            />
             <p
               className="mt-6 fi-reveal fi-reveal-delay-2"
               style={{

@@ -51,3 +51,18 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - **About** (`/app/frontend/src/components/site/About.jsx`): replaced single image with professional 2-image collage — primary modular-kitchen shot (WA0024.jpg) offset with gold accent frame, secondary golden-floral dining room floating bottom-right with soft-float animation; studio-note card overlays the collage; mobile fallback stacks the secondary image.
 - CSS keyframes `fi-kenburns`, `fi-gold-sweep`, `fi-float-soft` added to `/app/frontend/src/index.css`.
 - Verified via screenshot tool (1920×800) — both sections render correctly, images load from customer-assets CDN.
+
+
+## Feb 2026 — Site-wide Cinematic Text Animations + About Text-on-Image
+- **New `SplitHeading` component** (`/app/frontend/src/components/site/SplitHeading.jsx`):
+  - Word-mask reveal: each word slides up from a clip-mask + un-skews on intersection (1.05s per word, ~70ms stagger).
+  - Includes `SpreadOverline` (letter-spacing animates 0 → 0.4em on scroll) and `CharReveal` (char-by-char fade for paragraphs).
+- **Applied site-wide** to every major H2: About, Services, Portfolio, WhyChooseUs, Testimonials, Contact. All overlines use `SpreadOverline`. Animations trigger via IntersectionObserver.
+- **About redesigned with text-on-image composition** (`About.jsx`):
+  - Heading "Transform your space / with Urban Interiors" interlocked on the left with a 2-image collage on the right.
+  - Body promise paragraph (animated char-by-char) overlaid on the **primary** image inside a dark gradient + "OUR PROMISE" gold overline.
+  - **Secondary** image carries "STUDIO NOTE · Located in Chinar Park · Kolkata" at the top + a glass-card italic quote at the bottom.
+  - Gold accent frame, soft float animation on the secondary image, gold underline shimmer, mobile-stacked fallback.
+- **Bug fix**: corrected leftover `Why Fashion Interior` overline → `Why Urban Interiors`.
+- New CSS classes in `/app/frontend/src/index.css`: `fi-split`, `fi-split-word`, `fi-chars-reveal`, `fi-overline-spread`, `fi-shimmer`, `fi-glass-dark`, `fi-glass-light-2`.
+- Smoke-tested all sections (1920×800) — animations + layout verified.

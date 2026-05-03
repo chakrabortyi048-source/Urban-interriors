@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Star, Quote } from "lucide-react";
 import { api } from "../../lib/api";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 export default function Testimonials() {
   const [items, setItems] = useState([]);
@@ -24,17 +25,14 @@ export default function Testimonials() {
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 mb-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
           <div>
-            <div className="overline fi-reveal" style={{ color: "#CBA153" }}>
-              In their own words
-            </div>
-            <h2
-              className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05 }}
-            >
-              Real reviews,
-              <br />
-              from <span style={{ color: "#CBA153", fontStyle: "italic" }}>real Chinar Park clients.</span>
-            </h2>
+            <SpreadOverline text="In their own words" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Real reviews,"
+              accent="from real Chinar Park clients."
+              className="font-serif-display mt-5"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05, color: "#1A1A1A" }}
+              testId="testimonials-heading"
+            />
           </div>
           <div className="flex md:justify-end fi-reveal fi-reveal-delay-2">
             <div className="flex items-center gap-3">

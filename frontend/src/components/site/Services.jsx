@@ -1,4 +1,5 @@
 import { Palette, Hammer, Armchair } from "lucide-react";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 const services = [
   {
@@ -32,21 +33,18 @@ export default function Services() {
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div>
-            <div className="overline fi-reveal" style={{ color: "#CBA153" }}>
-              What We Do
-            </div>
-            <h2
-              className="font-serif-display fi-reveal fi-reveal-delay-1 mt-5"
+            <SpreadOverline text="What We Do" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Three crafts."
+              accent="One studio."
+              className="font-serif-display mt-5"
               style={{
                 fontSize: "clamp(2.2rem, 5vw, 4rem)",
                 lineHeight: 1.05,
                 color: "#1A1A1A",
               }}
-            >
-              Three crafts.
-              <br />
-              <span style={{ color: "#CBA153", fontStyle: "italic" }}>One studio.</span>
-            </h2>
+              testId="services-heading"
+            />
           </div>
           <p
             className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"
