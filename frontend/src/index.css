@@ -244,6 +244,67 @@ iframe[src*="emergent"][style*="position"] {
   animation: fi-float-soft 6s ease-in-out infinite;
 }
 
+/* ===== 3D floating text (About hero) ===== */
+.fi-3d-stage {
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+.fi-3d-layer {
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+@keyframes fi-float3d-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  50%      { transform: translate3d(0, -14px, 60px) rotateX(2deg) rotateY(-1.2deg); }
+}
+@keyframes fi-float3d-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  50%      { transform: translate3d(-6px, -10px, 30px) rotateX(-1.5deg) rotateY(1.5deg); }
+}
+@keyframes fi-float3d-c {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateY(0deg); }
+  50%      { transform: translate3d(8px, -7px, 20px) rotateY(-1deg); }
+}
+@keyframes fi-float3d-d {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg); }
+  50%      { transform: translate3d(0, -6px, 15px) rotateX(1deg); }
+}
+.fi-float3d-a { animation: fi-float3d-a 7.5s ease-in-out infinite; }
+.fi-float3d-b { animation: fi-float3d-b 9.2s ease-in-out infinite; }
+.fi-float3d-c { animation: fi-float3d-c 11s ease-in-out infinite; }
+.fi-float3d-d { animation: fi-float3d-d 13s ease-in-out infinite; }
+
+/* 3D entrance for headings — comes from deep Z on intersection */
+.fi-3d-in {
+  opacity: 0;
+  transform: translateZ(-200px) rotateX(-14deg) translateY(40px);
+  transition:
+    opacity 1.4s cubic-bezier(0.22,1,0.36,1),
+    transform 1.4s cubic-bezier(0.22,1,0.36,1);
+}
+.fi-3d-in.in-view {
+  opacity: 1;
+  transform: translateZ(0) rotateX(0deg) translateY(0);
+}
+
+/* Gold text glow for 3D look */
+.fi-text-3d-glow {
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.15),
+    0 2px 12px rgba(0,0,0,0.55),
+    0 8px 32px rgba(0,0,0,0.55),
+    0 0 40px rgba(203,161,83,0.25);
+}
+.fi-text-3d-gold {
+  background: linear-gradient(180deg, #F5E0A8 0%, #CBA153 45%, #8F6F2E 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 0 2px 30px rgba(203,161,83,0.35);
+}
+
 /* ===== Reveal animations ===== */
 .fi-reveal {
   opacity: 0;

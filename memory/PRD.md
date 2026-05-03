@@ -66,3 +66,15 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - **Bug fix**: corrected leftover `Why Fashion Interior` overline → `Why Urban Interiors`.
 - New CSS classes in `/app/frontend/src/index.css`: `fi-split`, `fi-split-word`, `fi-chars-reveal`, `fi-overline-spread`, `fi-shimmer`, `fi-glass-dark`, `fi-glass-light-2`.
 - Smoke-tested all sections (1920×800) — animations + layout verified.
+
+
+## Feb 2026 — About section full-bleed 3D redesign
+- **Dining room image** (`milhfp56_Screenshot_2026-04-30_175818.jpg`) is now the **full-bleed background** of the About section (min-height 110vh, subtle scroll parallax).
+- Cinematic vignette + top/bottom dark gradients for text legibility; 3 animated gold particle dots for depth.
+- All About texts now sit **inside the background**:
+  - Large headline "Transform your space / with Urban Interiors." with 3D glow text-shadow, animates in from deep Z (translateZ(-200px) → 0, rotateX(-14deg) → 0) on scroll, then drifts with `fi-float3d-a`.
+  - Body paragraph with "URBAN INTERIORS" rendered as gradient-gold background-clip text.
+  - **Studio Note glass card** on the right (backdrop-filter blur, gold left-border, drifts with `fi-float3d-c`).
+  - Four **Pillar glass cards** at the bottom, each floating with a different 3D cycle and staggered delays.
+- New CSS: `fi-3d-stage` (perspective 1400px), `fi-3d-layer`, `fi-3d-in`, keyframes `fi-float3d-a..d`, text helpers `fi-text-3d-glow`, `fi-text-3d-gold`.
+- Rest of the site (Hero, Portfolio, Services, Why Us, Reviews, Contact, Footer) **unchanged**.
