@@ -132,6 +132,7 @@ export default function About() {
             objectPosition: isMobile ? "center top" : "center center",
           }}
           loading="lazy"
+          decoding="async"
           data-testid="about-bg-image"
         />
       </div>

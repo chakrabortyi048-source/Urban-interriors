@@ -1,20 +1,33 @@
-import { useEffect } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useRevealAll } from "../lib/hooks";
 
 import Navbar from "../components/site/Navbar";
 import Hero from "../components/site/Hero";
-import About from "../components/site/About";
-import Portfolio from "../components/site/Portfolio";
-import Services from "../components/site/Services";
-import WhyChooseUs from "../components/site/WhyChooseUs";
-import Testimonials from "../components/site/Testimonials";
-import Contact from "../components/site/Contact";
-import Footer from "../components/site/Footer";
-import PremiumCursor from "../components/site/PremiumCursor";
-import GoldSprinkle from "../components/site/GoldSprinkle";
+
+// Below-fold sections are code-split for faster initial load.
+// They render in priority order as they enter view.
+const About = lazy(() => import("../components/site/About"));
+const Portfolio = lazy(() => import("../components/site/Portfolio"));
+const Services = lazy(() => import("../components/site/Services"));
+const WhyChooseUs = lazy(() => import("../components/site/WhyChooseUs"));
+const Testimonials = lazy(() => import("../components/site/Testimonials"));
+const Contact = lazy(() => import("../components/site/Contact"));
+const Footer = lazy(() => import("../components/site/Footer"));
+const PremiumCursor = lazy(() => import("../components/site/PremiumCursor"));
+const GoldSprinkle = lazy(() => import("../components/site/GoldSprinkle"));
 
 export default function HomePage() {
   useRevealAll(".fi-reveal");
+
+  // Defer non-essential overlays (cursor + sparkle) until the browser is idle,
+  // so they don't compete with the hero paint.
+  const [overlaysReady, setOverlaysReady] = useState(false);
+  useEffect(() => {
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 800));
+    const cic = window.cancelIdleCallback || clearTimeout;
+    const handle = ric(() => setOverlaysReady(true), { timeout: 1500 });
+    return () => cic(handle);
+  }, []);
 
   // Re-run reveal observer if content loads later (testimonials/portfolio)
   useEffect(() => {
@@ -39,17 +52,35 @@ export default function HomePage() {
 
   return (
     <div data-testid="home-page" style={{ background: "var(--fi-offwhite)" }}>
-      <PremiumCursor />
-      <GoldSprinkle />
+      {overlaysReady && (
+        <Suspense fallback={null}>
+          <PremiumCursor />
+          <GoldSprinkle />
+        </Suspense>
+      )}
       <Navbar />
       <Hero />
-      <About />
-      <Portfolio />
-      <Services />
-      <WhyChooseUs />
-      <Testimonials />
-      <Contact />
-      <Footer />
+      <Suspense fallback={<div style={{ minHeight: "60vh", background: "#0e0e0e" }} />}>
+        <About />
+      </Suspense>
+      <Suspense fallback={<div style={{ minHeight: "40vh", background: "#161616" }} />}>
+        <Portfolio />
+      </Suspense>
+      <Suspense fallback={<div style={{ minHeight: "30vh", background: "var(--fi-offwhite)" }} />}>
+        <Services />
+      </Suspense>
+      <Suspense fallback={<div style={{ minHeight: "30vh", background: "#161616" }} />}>
+        <WhyChooseUs />
+      </Suspense>
+      <Suspense fallback={<div style={{ minHeight: "30vh", background: "var(--fi-offwhite)" }} />}>
+        <Testimonials />
+      </Suspense>
+      <Suspense fallback={<div style={{ minHeight: "30vh", background: "var(--fi-offwhite)" }} />}>
+        <Contact />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

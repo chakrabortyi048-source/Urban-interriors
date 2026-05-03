@@ -48,6 +48,8 @@ export default function Hero() {
           className="w-full h-full object-cover"
           style={{ objectPosition: "center" }}
           loading="eager"
+          fetchpriority="high"
+          decoding="async"
         />
         {/* Soft top-to-bottom dark gradient (only enough for legibility) */}
         <div
@@ -252,6 +254,8 @@ export default function Hero() {
                   alt="Urban Interiors — bespoke living room project, Chinar Park, Kolkata"
                   className="w-full h-full object-cover"
                   loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
                   data-testid="hero-image"
                 />
                 {/* Subtle inner gold border */}

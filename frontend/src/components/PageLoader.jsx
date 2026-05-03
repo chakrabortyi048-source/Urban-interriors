@@ -5,8 +5,8 @@ export default function PageLoader() {
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setClosing(true), 1500);
-    const t2 = setTimeout(() => setHidden(true), 2200);
+    const t1 = setTimeout(() => setClosing(true), 600);
+    const t2 = setTimeout(() => setHidden(true), 1100);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);

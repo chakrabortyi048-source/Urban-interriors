@@ -140,3 +140,17 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - **Index-as-key in static lists** (Star icons by rating count, Hero headline literals, PageLoader fixed sequence, SplitHeading fixed-prop split) — these never reorder; index keys are safe and the warning is overly broad.
 - **localStorage → httpOnly cookies** — the JWT bearer token in `localStorage` is the documented pattern for this stack. Switching to httpOnly cookies requires a backend session-auth refactor + CSRF protection across every endpoint. Logged as a P2 future task; not regressing the working auth flow.
 - **High-complexity admin components & oversized files** (AdminSettings 255 lines, AdminPortfolio 310 lines, About 409 lines, Hero 324 lines) — these are working production code with recently-built animations. Splitting them now would risk regressions on the cinematic Hero/About we just shipped. Logged as a refactoring task in `ROADMAP.md` (see backlog).
+
+
+## Feb 2026 — Performance Pass (Loading Speed)
+**Improvements:**
+1. **PageLoader 2200ms → 1100ms** — the branded loader was the biggest bottleneck. Closes at 600ms, fully hidden at 1100ms.
+2. **Below-fold sections code-split** via `React.lazy` + `Suspense` (HomePage). Initial bundle ships only Navbar + Hero; About/Portfolio/Services/Why/Reviews/Contact/Footer + PremiumCursor + GoldSprinkle stream in as user scrolls. Each Suspense fallback uses a colored skeleton to prevent CLS.
+3. **Preconnect + DNS-prefetch for `customer-assets.emergentagent.com`** + **`<link rel="preload">` for the hero image** with `fetchpriority="high"` in `public/index.html`. Hero image starts downloading during HTML parse, not after JS.
+4. **`fetchpriority="high"` + `decoding="async"`** on hero `<img>`s; `loading="lazy"` + `decoding="async"` on About background.
+5. **`PremiumCursor` + `GoldSprinkle` deferred via `requestIdleCallback`** (800ms fallback). They mount only after the browser is idle, not during initial paint.
+
+**Measured (Playwright):**
+- Mobile: First Paint 192ms, FCP 192ms, DOMContentLoaded 388ms, Load 389ms.
+- Desktop: First Paint 448ms, FCP 448ms, DOMContentLoaded 553ms, Load 554ms.
+- Previously the loader alone blocked 2.2s. ~5× faster perceived load.
