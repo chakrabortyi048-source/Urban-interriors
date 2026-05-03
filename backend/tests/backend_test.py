@@ -1,4 +1,11 @@
-"""Fashion Interior backend API tests."""
+"""Fashion Interior backend API tests.
+
+Admin credentials are read from environment variables to avoid storing
+secrets in source. Required env vars to run admin tests:
+  - TEST_ADMIN_PASSWORD  (required for admin/auth tests)
+  - TEST_ADMIN_EMAIL     (optional; default chakrabortyi048@gmail.com)
+Public-only tests still run without these vars.
+"""
 import os
 import time
 import uuid
@@ -7,14 +14,20 @@ import requests
 from pymongo import MongoClient
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://aniket-interiors.preview.emergentagent.com').rstrip('/')
-ADMIN_EMAIL = "chakrabortyi048@gmail.com"
+ADMIN_EMAIL = os.environ.get("TEST_ADMIN_EMAIL", "chakrabortyi048@gmail.com")
 OLD_ADMIN_EMAIL = "admin@fashioninterior.com"
-ADMIN_PASSWORD = "FashionAdmin@2025"
-NOTIFY_EMAIL = "chakrabortyi048@gmail.com"
+ADMIN_PASSWORD = os.environ.get("TEST_ADMIN_PASSWORD", "")
+NOTIFY_EMAIL = os.environ.get("TEST_NOTIFY_EMAIL", ADMIN_EMAIL)
 BACKEND_LOG = "/var/log/supervisor/backend.err.log"
 
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "fashion_interior"
+
+# Skip-decorator for tests that require admin credentials.
+_admin_skip = pytest.mark.skipif(
+    not ADMIN_PASSWORD,
+    reason="TEST_ADMIN_PASSWORD env var not set; admin tests skipped",
+)
 
 
 @pytest.fixture(scope="session")
@@ -33,6 +46,8 @@ def api():
 
 @pytest.fixture(scope="session")
 def admin_token(api):
+    if not ADMIN_PASSWORD:
+        pytest.skip("TEST_ADMIN_PASSWORD env var not set")
     r = api.post(f"{BASE_URL}/api/admin/login",
                  json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
     if r.status_code != 200:
@@ -99,6 +114,7 @@ class TestPublic:
 
 
 # --------- Admin auth ---------
+@_admin_skip
 class TestAdminAuth:
     def test_login_ok(self, api):
         r = api.post(f"{BASE_URL}/api/admin/login",
@@ -131,6 +147,7 @@ class TestAdminAuth:
 
 
 # --------- Forgot/Reset password flow ---------
+@_admin_skip
 class TestPasswordReset:
     def test_forgot_returns_ok(self, api):
         r = api.post(f"{BASE_URL}/api/admin/forgot-password",
@@ -178,6 +195,7 @@ class TestPasswordReset:
 
 
 # --------- Change password / email ---------
+@_admin_skip
 class TestChangeCredentials:
     def test_change_password_wrong_current(self, api, auth_headers):
         r = api.post(f"{BASE_URL}/api/admin/change-password",
@@ -302,6 +320,7 @@ class TestBusinessInfo:
 
 
 # --------- New email login (iteration 2) ---------
+@_admin_skip
 class TestAdminEmailChange:
     def test_old_email_fails(self, api):
         r = api.post(f"{BASE_URL}/api/admin/login",

@@ -9,6 +9,8 @@ export default function Portfolio() {
 
   useEffect(() => {
     api.get("/portfolio").then((r) => setItems(r.data || [])).catch(() => {});
+    // Mount-only fetch; api/setItems are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

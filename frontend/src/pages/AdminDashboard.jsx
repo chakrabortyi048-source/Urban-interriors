@@ -38,12 +38,17 @@ export default function AdminDashboard() {
         setAdminToken(null);
         navigate("/admin/login", { replace: true });
       });
-  }, [navigate]);
+    // Run only on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const logout = async () => {
     try {
       await api.post("/admin/logout");
-    } catch (e) {}
+    } catch (e) {
+      // Server-side logout is best-effort; client always clears the token.
+      console.warn("Server logout failed (clearing local token anyway)", e);
+    }
     setAdminToken(null);
     navigate("/admin/login", { replace: true });
   };

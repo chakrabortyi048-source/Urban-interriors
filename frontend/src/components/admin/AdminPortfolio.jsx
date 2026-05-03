@@ -16,10 +16,13 @@ export default function AdminPortfolio() {
     try {
       const { data } = await api.get("/admin/portfolio");
       setItems(data || []);
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to load portfolio", e);
+    }
   };
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startNew = () => {
@@ -65,7 +68,10 @@ export default function AdminPortfolio() {
     try {
       await api.delete(`/admin/portfolio/${id}`);
       load();
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to delete portfolio item", e);
+      setError("Could not delete the project. Please try again.");
+    }
   };
 
   const move = async (idx, dir) => {

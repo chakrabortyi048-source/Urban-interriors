@@ -11,10 +11,13 @@ export default function AdminInquiries() {
     try {
       const { data } = await api.get("/admin/inquiries");
       setItems(data || []);
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to load inquiries", e);
+    }
   };
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sorted = [...items].sort((a, b) => {
@@ -36,7 +39,10 @@ export default function AdminInquiries() {
       await api.delete(`/admin/inquiries/${id}`);
       load();
       setActive(null);
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to delete inquiry", e);
+      window.alert("Could not delete the inquiry. Please try again.");
+    }
   };
 
   const open = async (it) => {
@@ -45,7 +51,9 @@ export default function AdminInquiries() {
       try {
         await api.post(`/admin/inquiries/${it.id}/read`);
         load();
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to mark inquiry as read", e);
+      }
     }
   };
 

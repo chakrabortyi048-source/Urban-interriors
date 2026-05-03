@@ -14,10 +14,13 @@ export default function AdminTestimonials() {
     try {
       const { data } = await api.get("/admin/testimonials");
       setItems(data || []);
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to load testimonials", e);
+    }
   };
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startNew = () => {
@@ -69,7 +72,10 @@ export default function AdminTestimonials() {
     try {
       await api.delete(`/admin/testimonials/${id}`);
       load();
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to delete testimonial", e);
+      setError("Could not delete the testimonial. Please try again.");
+    }
   };
 
   return (

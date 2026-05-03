@@ -20,7 +20,9 @@ export default function AdminLogin() {
     } else {
       setAuthedCheck(true);
     }
-  }, [navigate]);
+    // Run only on mount; navigate is stable from react-router-dom.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();

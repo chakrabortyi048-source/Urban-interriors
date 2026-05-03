@@ -7,6 +7,8 @@ export default function Testimonials() {
   const [items, setItems] = useState([]);
   useEffect(() => {
     api.get("/testimonials").then((r) => setItems(r.data || [])).catch(() => {});
+    // Mount-only fetch; api/setItems are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // duplicate for seamless loop
