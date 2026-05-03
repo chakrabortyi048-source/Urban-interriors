@@ -1,7 +1,9 @@
 import { PaintRoller, Armchair, TreePine, Sprout } from "lucide-react";
 
-const ABOUT_IMG =
-  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/1ix5f5nl_IMG-20260501-WA0023.jpg";
+const ABOUT_IMG_PRIMARY =
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/faxinqkk_IMG-20260501-WA0024.jpg";
+const ABOUT_IMG_SECONDARY =
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/yn5jsg0d_Screenshot_2026-04-30_175818.jpg";
 
 const PILLARS = [
   { icon: PaintRoller, label: "Interior Painting", desc: "Refreshing coats that set the mood." },
@@ -90,25 +92,100 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right: image */}
-          <div className="fi-reveal fi-reveal-delay-2 relative">
+          {/* Right: 2-image collage */}
+          <div
+            className="fi-reveal fi-reveal-delay-2 relative"
+            data-testid="about-collage"
+            style={{ minHeight: "560px" }}
+          >
+            {/* Gold accent square behind primary */}
             <div
-              className="portfolio-img-wrap"
+              aria-hidden
+              className="absolute hidden md:block"
+              style={{
+                top: "-18px",
+                left: "-18px",
+                width: "52%",
+                height: "60%",
+                border: "1.5px solid #CBA153",
+                borderRadius: 2,
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Primary large image */}
+            <div
+              className="portfolio-img-wrap relative"
               style={{
                 aspectRatio: "4 / 5",
                 background: "#1d1d1d",
+                width: "100%",
+                maxWidth: "480px",
+                boxShadow: "0 30px 60px -30px rgba(0,0,0,0.35)",
               }}
             >
               <img
-                src={ABOUT_IMG}
-                alt="Urban Interiors — a recent project in Chinar Park, Kolkata"
+                src={ABOUT_IMG_PRIMARY}
+                alt="Urban Interiors — feature wall & modular unit, Chinar Park"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                data-testid="about-collage-primary"
+              />
+            </div>
+
+            {/* Secondary floating image, offset bottom-right */}
+            <div
+              className="hidden md:block absolute fi-float-soft"
+              style={{
+                bottom: "-40px",
+                right: "-10px",
+                width: "56%",
+                aspectRatio: "4 / 5",
+                overflow: "hidden",
+                background: "#1d1d1d",
+                border: "6px solid var(--fi-offwhite)",
+                boxShadow: "0 40px 80px -30px rgba(0,0,0,0.5), 0 0 0 1px rgba(203,161,83,0.35)",
+                borderRadius: 2,
+              }}
+            >
+              <img
+                src={ABOUT_IMG_SECONDARY}
+                alt="Urban Interiors — golden floral dining room, Kolkata"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                data-testid="about-collage-secondary"
+              />
+            </div>
+
+            {/* Mobile fallback: secondary image as stacked card */}
+            <div
+              className="md:hidden mt-4"
+              style={{
+                aspectRatio: "4 / 5",
+                overflow: "hidden",
+                background: "#1d1d1d",
+                border: "4px solid var(--fi-offwhite)",
+                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.35)",
+              }}
+            >
+              <img
+                src={ABOUT_IMG_SECONDARY}
+                alt="Urban Interiors — golden floral dining room, Kolkata"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
             </div>
+
+            {/* Studio note card */}
             <div
-              className="hidden md:block absolute -bottom-8 -left-8 glass-light p-6 max-w-[280px]"
-              style={{ borderRadius: 2 }}
+              className="hidden lg:block absolute glass-light p-5 max-w-[260px]"
+              style={{
+                top: "56%",
+                left: "-28px",
+                borderRadius: 2,
+                borderLeft: "2px solid #CBA153",
+                zIndex: 5,
+              }}
             >
               <div className="overline" style={{ color: "#CBA153" }}>
                 Studio Note
@@ -119,7 +196,7 @@ export default function About() {
               >
                 "Unparalleled craftsmanship and artistry — turning houses into dream homes."
               </p>
-              <div className="overline mt-4" style={{ color: "#737373" }}>
+              <div className="overline mt-3" style={{ color: "#737373" }}>
                 — Urban Interiors, Chinar Park
               </div>
             </div>

@@ -214,6 +214,36 @@ iframe[src*="emergent"][style*="position"] {
   to { transform: scaleY(1); }
 }
 
+/* ===== Hero Ken Burns slow zoom ===== */
+@keyframes fi-kenburns {
+  0%   { transform: scale(1.02) translate3d(0,0,0); }
+  100% { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+}
+.fi-kenburns {
+  animation: fi-kenburns 18s ease-out forwards;
+  will-change: transform;
+}
+
+/* ===== Gold accent line sweep ===== */
+@keyframes fi-gold-sweep {
+  0%   { transform: scaleX(0); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+.fi-gold-sweep {
+  transform-origin: left center;
+  animation: fi-gold-sweep 1.4s 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ===== About collage float ===== */
+@keyframes fi-float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.fi-float-soft {
+  animation: fi-float-soft 6s ease-in-out infinite;
+}
+
 /* ===== Reveal animations ===== */
 .fi-reveal {
   opacity: 0;

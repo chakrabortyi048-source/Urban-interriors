@@ -44,3 +44,10 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - Testimonials: admin CRUD → public `/api/testimonials` → homepage carousel
 - Business Info (address / phone / hours / socials): admin Settings → public `/api/business-info` → Footer + Contact + WhatsApp button
 - Image uploads stored in MongoDB GridFS (survive every redeploy)
+
+
+## Feb 2026 — Hero & About Cinematic Refresh
+- **Hero** (`/app/frontend/src/components/site/Hero.jsx`): new bright living-room render (WA0025.jpg) as background; added Ken Burns slow-zoom (18s) + animated gold accent line above headline; softer radial + bottom-only gradient to keep the image bright.
+- **About** (`/app/frontend/src/components/site/About.jsx`): replaced single image with professional 2-image collage — primary modular-kitchen shot (WA0024.jpg) offset with gold accent frame, secondary golden-floral dining room floating bottom-right with soft-float animation; studio-note card overlays the collage; mobile fallback stacks the secondary image.
+- CSS keyframes `fi-kenburns`, `fi-gold-sweep`, `fi-float-soft` added to `/app/frontend/src/index.css`.
+- Verified via screenshot tool (1920×800) — both sections render correctly, images load from customer-assets CDN.
