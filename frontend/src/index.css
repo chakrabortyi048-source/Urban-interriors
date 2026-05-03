@@ -333,6 +333,150 @@ iframe[src*="emergent"][style*="position"] {
   animation: fi-rise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ===== Hero — Premium 3D word entrance ===== */
+@keyframes fi-hero-word-3d {
+  0% {
+    opacity: 0;
+    transform: translateY(120%) rotateX(-90deg) translateZ(-60px);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0) translateZ(0);
+    filter: blur(0);
+  }
+}
+.fi-hero3d-stage {
+  perspective: 1600px;
+  transform-style: preserve-3d;
+}
+.fi-hero3d-word {
+  display: inline-block;
+  overflow: visible;
+  vertical-align: bottom;
+  transform-style: preserve-3d;
+  transform-origin: bottom center;
+}
+.fi-hero3d-word > span {
+  display: inline-block;
+  transform-origin: bottom center;
+  animation: fi-hero-word-3d 1.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  will-change: transform, opacity, filter;
+}
+
+/* Gold shimmer sweep across an element (for the accent word) */
+@keyframes fi-gold-shine {
+  0%   { background-position: -200% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.fi-gold-shine {
+  background: linear-gradient(
+    100deg,
+    #CBA153 0%,
+    #CBA153 35%,
+    #FFE9B0 50%,
+    #CBA153 65%,
+    #CBA153 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: fi-gold-shine 3.6s linear infinite;
+  text-shadow: 0 0 30px rgba(203,161,83,0.35);
+}
+
+/* Char fade-in (typewriter-ish, smoother) */
+@keyframes fi-char-in {
+  0% { opacity: 0; transform: translateY(20px) rotateX(-30deg); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
+}
+.fi-typewriter > .fi-char {
+  display: inline-block;
+  animation: fi-char-in 0.7s cubic-bezier(0.22,1,0.36,1) backwards;
+}
+
+/* Vertical side text — letter cascade */
+@keyframes fi-letter-cascade {
+  0%   { opacity: 0; transform: translateY(-12px); filter: blur(3px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.fi-vert-cascade > span {
+  display: inline-block;
+  animation: fi-letter-cascade 0.6s cubic-bezier(0.22,1,0.36,1) backwards;
+}
+
+/* Pulsing gold halo behind hero image */
+@keyframes fi-halo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.75;
+  }
+}
+.fi-halo-pulse {
+  animation: fi-halo-pulse 5.5s ease-in-out infinite;
+}
+
+/* Aurora ripple on button hover */
+@keyframes fi-aurora-ripple {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
+  70%  { opacity: 0.25; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+.btn-fi-gold,
+.btn-fi-ghost {
+  position: relative;
+  overflow: hidden;
+}
+.btn-fi-gold::before,
+.btn-fi-ghost::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,233,176,0.7) 0%, rgba(203,161,83,0.0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  opacity: 0;
+}
+.btn-fi-gold:hover::before,
+.btn-fi-ghost:hover::before {
+  animation: fi-aurora-ripple 0.9s ease-out;
+}
+
+/* Hero image gold corner brackets */
+.fi-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #CBA153;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(203,161,83,0.55));
+}
+.fi-corner.tl { top: -10px; left: -10px; border-right: none; border-bottom: none; }
+.fi-corner.tr { top: -10px; right: -10px; border-left: none; border-bottom: none; }
+.fi-corner.bl { bottom: -10px; left: -10px; border-right: none; border-top: none; }
+.fi-corner.br { bottom: -10px; right: -10px; border-left: none; border-top: none; }
+@keyframes fi-corner-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.fi-corner {
+  animation: fi-corner-in 0.9s cubic-bezier(0.22,1,0.36,1) backwards;
+}
+
 /* ===== Split text — word mask reveal (premium) ===== */
 .fi-split { display: block; }
 .fi-split-word {

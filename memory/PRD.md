@@ -99,3 +99,19 @@ Seeded with neutral titles — owner will rename via admin dashboard.
   - **Scroll-to-explore rail** on right edge: gold track + glowing gold fill + vertical "SCROLL" label.
 - Wired into `HomePage.jsx` as first child.
 - CSS classes added to `/app/frontend/src/index.css`: `.fi-cursor-ring`, `.fi-cursor-dot`, `.fi-scroll-rail*`, and `html.fi-premium-cursor *` cursor-hiding (preserves text caret).
+
+
+## Feb 2026 — Hero redesign: bright high-res image + next-level text animations
+- **New high-res hero asset** (`sxh3shl9_IMG-20260501-WA0025.jpg`, 712×1400 portrait).
+- **Desktop split layout**: the image (formerly cropped to dim murk by `object-cover` on a 16:9 viewport) now lives on the right column at its native portrait aspect — the **full living room is visible at full brightness** with no heavy overlay, framed by a gold pulsing halo, gold corner brackets that animate in, and a "Recent Project · 2025" floating tag. Text content lives in the left column.
+- **Mobile**: still uses the image as a full-bleed cover background (matching what the user wanted on phones).
+- **Next-level text animations on the hero**:
+  - Headline words fly in from below with `rotateX(-90deg) → 0` + blur(8px) → 0 entrance (`fi-hero-word-3d`), staggered 160ms each.
+  - The accent word "Story." is rendered with an **infinite gold-shimmer sweep** (`fi-gold-shine`).
+  - Subtitle text uses **typewriter char-fade** with rotateX-30 → 0 + blur per character (`fi-typewriter`).
+  - Vertical "Painting · Furniture · Flooring · Landscape" text cascades letter by letter (`fi-vert-cascade`).
+  - "Kolkata · Chinar Park" overline cascades in with letter-spread + gold glow.
+  - Animated gold accent line sweeps out from left.
+  - Image entrance: rises in over 1.4s, corner brackets pop in with staggered delays.
+  - Buttons get an **aurora ripple** burst on hover.
+- New CSS: `fi-hero3d-stage`, `fi-hero3d-word`, `fi-hero-word-3d`, `fi-gold-shine`, `fi-typewriter`, `fi-vert-cascade`, `fi-halo-pulse`, `fi-aurora-ripple`, `.fi-corner.tl/tr/bl/br`.
