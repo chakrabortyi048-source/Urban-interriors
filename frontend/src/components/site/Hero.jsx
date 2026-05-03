@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
 const HERO_IMG =
-  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/g68dku5u_IMG-20260501-WA0022.jpg";
+  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/t26je9qw_Screenshot_2026-04-30_175818.jpg";
 
 export default function Hero() {
   const [parallaxY, setParallaxY] = useState(0);
