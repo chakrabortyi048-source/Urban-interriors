@@ -1,0 +1,42 @@
+{
+  "summary": "Final QA sweep of Urban Interiors admin dashboard. 37/37 backend pytest pass (proxy-headers bug from iter_3 is FIXED — upload URLs now correctly use public https). Frontend tested at 1280px: login (valid + invalid + eye-toggle + forgot-password link), dashboard shell, all 5 sections (Overview/Portfolio/Inquiries/Testimonials/Settings) navigable, refresh persists JWT, logout clears token, unauth /admin redirects to login, 0 console errors. Stats counts (9 portfolio / 3 testimonials / N inquiries) render and match backend. Settings business info form fully populated (Urban Interiors, 8981230518, Chinar Park primary + Kaikhali branch, hours, Instagram, Facebook, change-email + change-password forms with eye-toggles, Google Sync button). Portfolio Add Project form has title/category/upload/URL/description/Save/Cancel. One real-data hygiene issue found and fixed: 5 TEST_lead_* inquiries (leftover from previous pytest runs because TestLeadNotification did NOT clean up after itself) were polluting the admin Recent enquiries widget — non-technical owner was seeing scary-looking 'TEST_lead_*' rows. Deleted them and patched the pytest test to delete the inquiry on success. Inquiries_count now = 0 (clean state).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/inquiries (TestLeadNotification leak)", "issue": "Prior to this run, the TestLeadNotification pytest test created an inquiry per run and never deleted it, so 5 TEST_lead_* rows had leaked into production. Fixed in this iteration by deleting on assert + manual cleanup. Inquiries collection is now clean (0 docs)."},
+      {"endpoint": "GridFS uploads", "issue": "Orphan GridFS files remain after portfolio item deletion. Confirmed in iter_3 review; not regressed. Low priority — does not affect users, only storage growth."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin forms (Portfolio Add, Settings)", "issues": ["Form <input> elements have empty 'name' attributes and no data-testid — Playwright selectors had to fall back to label-text and generic CSS. Adding data-testid='admin-portfolio-title-input', '...-category-input', '...-image-url-input', '...-description-input', '...-save-btn' (and similar for Settings/Testimonials/Inquiries) would harden future automated regression."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional polish, no functional bug) Add data-testid attributes to Portfolio create/edit form fields, Settings business-info inputs, change-email/change-password fields, Testimonials add/edit fields, Inquiries row delete & mark-as-read buttons, and Google Sync Now button. This will speed up future automated QA runs.",
+    "(Optional) Add orphan-GridFS-file cleanup hook in admin_delete_portfolio (extract ObjectId from image_url and call gridfs.delete()) — long-term storage hygiene only."
+  ],
+  "critical_code_review_comments": [
+    "iter_3 critical bug (request.base_url returning internal cluster hostname) is verified FIXED — upload URLs now start with the public https://aniket-interiors.preview.emergentagent.com prefix; both TestUpload::test_upload_url_uses_public_https_when_proxied and test_upload_url_adapts_to_request_base_url pass.",
+    "All 5 admin-component empty-catch blocks (mentioned in handoff context as already-fixed) verified — 0 console errors across the whole admin dashboard navigation flow.",
+    "AdminLogin password eye-toggle present and functional; Settings page has eye-toggles for current/new/confirm-password and change-email current-password fields.",
+    "Stats (/api/admin/stats), Google Sync (/api/admin/google-sync/status), and all CRUD endpoints respond < 1 s and return correct shape.",
+    "Test data hygiene: pytest fixtures should consistently delete TEST_-prefixed rows on teardown; previously TestLeadNotification leaked. Fixed in this iteration."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py — TestLeadNotification now deletes the created inquiry after assertion so test runs do not leak data into the live admin Recent-enquiries widget."
+  ],
+  "success_rate": {"backend": "100% (37/37 pytest pass)", "frontend": "100% (login, eye-toggle, invalid-creds inline error, dashboard shell, all 5 nav tabs, refresh persistence, logout, unauth guard, settings form populated, portfolio Add form, testimonials list, inquiries list, 0 console errors)"},
+  "test_credentials": "chakrabortyi048@gmail.com / FashionAdmin@2025 (unchanged — admin password reverted in tests)",
+  "seed_data_creation": "Cleaned up 5 leaked TEST_lead_* inquiry rows from MongoDB.inquiries (run via authenticated DELETE /api/admin/inquiries/{id}). Final state: inquiries_count=0, portfolio_count=9, testimonials_count=3.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Admin dashboard is clean and production-ready. All 37 backend tests pass. Frontend has 0 console errors across all 5 sections. The only outstanding non-blocker is missing data-testid attributes on admin form inputs (use label-text or generic input[type='text']:nth selectors as a fallback). Inquiries collection is empty — if any future tests need an existing inquiry, seed one via POST /api/inquiries first. Resend + SerpAPI integrations are live; google-sync last_run shows fetched=3 reviews successfully.",
+  "rca_of_the_issue": "User reported seeing 'stale/unfamiliar content' on admin dashboard. Root cause: previous pytest iterations' TestLeadNotification (and possibly other) tests created test inquiry rows but never cleaned them up, so the live admin Recent-enquiries widget kept growing with TEST_lead_<hex> rows. The non-technical owner naturally found this confusing. Mitigation applied: (a) manually deleted all 5 TEST_lead_* inquiry rows via authenticated DELETE, (b) patched TestLeadNotification to call mongo_db.inquiries.delete_one({'id': iid}) immediately after the log-assert so future runs are clean, (c) verified 37/37 backend tests still pass and admin Inquiries page now correctly shows 0 unread. No code-level bug in production routes — purely a test-hygiene issue."
+}

@@ -388,7 +388,7 @@ class TestAdminEmailChange:
 
 # --------- Lead notification email on inquiry ---------
 class TestLeadNotification:
-    def test_inquiry_triggers_lead_email_log(self, api):
+    def test_inquiry_triggers_lead_email_log(self, api, mongo_db):
         # snapshot log size
         try:
             with open(BACKEND_LOG, "rb") as f:
@@ -424,6 +424,8 @@ class TestLeadNotification:
             f"got tail: ...{new_text[-500:]}"
         )
         assert NOTIFY_EMAIL in new_text
+        # cleanup so test inquiries don't leak into production admin UI
+        mongo_db.inquiries.delete_one({"id": iid})
 
 
 # --------- Forgot-password sends via Resend ---------
