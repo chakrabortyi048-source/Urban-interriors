@@ -171,3 +171,19 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - Homepage HTTP 200 in ~228ms, API health 200, admin login returns valid JWT, robots.txt + sitemap.xml both 200.
 - Mobile FCP 192ms, Desktop FCP 448ms (unchanged from last optimisation pass).
 - Playwright: instrumented 24 headline chars, 2 lit at cursor, 0 page errors.
+
+
+## Feb 2026 — CRITICAL BUG FIX: Admin password change persistence
+**Root cause (silent data loss on every restart):**
+- `/admin/change-password` + `/admin/reset-password` updated `password_hash` but never flagged the user as having customised it.
+- On every backend restart, `seed_admin()` found the hash didn't match `ADMIN_PASSWORD` from `.env`, saw no `password_changed` flag, and reverted the hash to the env default — silently erasing every password change.
+
+**Fix applied in `/app/backend/server.py`:**
+1. `/admin/change-password` + `/admin/reset-password` now stamp `password_changed: True` + `password_changed_at` timestamps.
+2. `/admin/change-email` now stamps `email_changed: True` + `email_changed_at`.
+3. `seed_admin()` hardened: creates a new admin only when NO admin exists. Only refreshes hash from env when both `password_changed` and `email_changed` are false AND stored hash truly differs.
+4. **Retroactive migration**: on boot, scans admin users whose hash doesn't match env and stamps `password_changed: True` — protects admins who changed passwords before this fix shipped.
+
+**Regression test added** (`TestPasswordChangePersistence`): full round-trip + DB flag assertion. Prevents reoccurrence.
+
+**Verified**: change → old fails, new succeeds → backend restart → new still succeeds, env default still fails. Original password restored. 37/37 tests pass.

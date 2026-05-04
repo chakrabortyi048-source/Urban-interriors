@@ -552,8 +552,18 @@ async def admin_reset(payload: ResetIn):
     if expires_at is None or expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Token has expired")
     new_hash = hash_password(payload.new_password)
-    await db.users.update_one({"id": rec["user_id"]}, {"$set": {"password_hash": new_hash}})
+    # Persist the new hash AND mark the user as having a custom password so
+    # the startup seed_admin() heuristic never overwrites it on redeploy.
+    await db.users.update_one(
+        {"id": rec["user_id"]},
+        {"$set": {
+            "password_hash": new_hash,
+            "password_changed": True,
+            "password_changed_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
     await db.password_reset_tokens.update_one({"token": payload.token}, {"$set": {"used": True}})
+    logger.info(f"Admin password reset via token for user_id={rec['user_id']}")
     return {"ok": True, "message": "Password updated successfully"}
 
 
@@ -562,7 +572,17 @@ async def admin_change_password(payload: ChangePasswordIn, user: dict = Depends(
     full = await db.users.find_one({"id": user["id"]})
     if not full or not verify_password(payload.current_password, full["password_hash"]):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    await db.users.update_one({"id": user["id"]}, {"$set": {"password_hash": hash_password(payload.new_password)}})
+    # Persist the new hash AND mark the user as having a custom password so
+    # the startup seed_admin() heuristic never overwrites it on redeploy.
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "password_hash": hash_password(payload.new_password),
+            "password_changed": True,
+            "password_changed_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    logger.info(f"Admin password changed for user_id={user['id']}")
     return {"ok": True}
 
 
@@ -575,7 +595,15 @@ async def admin_change_email(payload: ChangeEmailIn, user: dict = Depends(get_cu
     existing = await db.users.find_one({"email": new_email})
     if existing and existing.get("id") != user["id"]:
         raise HTTPException(status_code=400, detail="Email already in use")
-    await db.users.update_one({"id": user["id"]}, {"$set": {"email": new_email}})
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "email": new_email,
+            "email_changed": True,
+            "email_changed_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    logger.info(f"Admin email changed for user_id={user['id']}")
     return {"ok": True, "email": new_email}
 
 
@@ -857,8 +885,20 @@ DEFAULT_TESTIMONIALS = [
 
 
 async def seed_admin():
-    existing = await db.users.find_one({"email": ADMIN_EMAIL.lower()})
-    if existing is None:
+    """Ensure an admin user exists without clobbering user-made changes.
+
+    Rules:
+      - If NO admin user exists at all (first boot / fresh DB), seed one with
+        ADMIN_EMAIL + ADMIN_PASSWORD from env.
+      - If ANY admin user exists (even under a different email after a
+        change-email), do nothing — preserve their email + password.
+      - Legacy behavior: if an admin with the env email exists but never
+        changed their password, refresh the hash to match the env (only
+        useful when an operator rotates ADMIN_PASSWORD in .env before the
+        admin has customised it).
+    """
+    any_admin = await db.users.find_one({"role": "admin"})
+    if any_admin is None:
         await db.users.insert_one({
             "id": str(uuid.uuid4()),
             "email": ADMIN_EMAIL.lower(),
@@ -868,16 +908,47 @@ async def seed_admin():
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
         logger.info(f"Seeded admin user {ADMIN_EMAIL}")
-    elif not verify_password(ADMIN_PASSWORD, existing.get("password_hash", "")):
-        # Only refresh hash if user hasn't already changed their password (heuristic: keep idempotent)
-        # We do NOT overwrite if a user has manually changed it via dashboard.
-        # Detect first-run by absence of `password_changed` flag.
-        if not existing.get("password_changed"):
+        return
+
+    # ---- Retroactive migration (safe, idempotent) ----
+    # If an existing admin's stored hash no longer matches the env ADMIN_PASSWORD,
+    # that means they've ALREADY customised it via the dashboard. Stamp the
+    # password_changed flag so no future restart ever clobbers it.
+    async for u in db.users.find({"role": "admin"}):
+        if u.get("password_changed"):
+            continue
+        if not verify_password(ADMIN_PASSWORD, u.get("password_hash", "")):
             await db.users.update_one(
-                {"email": ADMIN_EMAIL.lower()},
-                {"$set": {"password_hash": hash_password(ADMIN_PASSWORD)}},
+                {"id": u["id"]},
+                {"$set": {
+                    "password_changed": True,
+                    "password_changed_at": u.get(
+                        "password_changed_at",
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                }},
             )
-            logger.info("Refreshed admin password from .env")
+            logger.info(
+                f"Migration: marked admin user_id={u['id']} as password_changed "
+                "(stored hash differs from .env default)"
+            )
+
+    # Admin exists — only refresh env-password if the admin has NEVER changed
+    # either their password or their email. This protects every
+    # /admin/change-password, /admin/reset-password and /admin/change-email
+    # call from being silently reverted on the next backend restart.
+    existing = await db.users.find_one({"email": ADMIN_EMAIL.lower(), "role": "admin"})
+    if (
+        existing
+        and not existing.get("password_changed")
+        and not existing.get("email_changed")
+        and not verify_password(ADMIN_PASSWORD, existing.get("password_hash", ""))
+    ):
+        await db.users.update_one(
+            {"id": existing["id"]},
+            {"$set": {"password_hash": hash_password(ADMIN_PASSWORD)}},
+        )
+        logger.info("Refreshed admin password from .env (no custom changes detected)")
 
 
 async def seed_portfolio():

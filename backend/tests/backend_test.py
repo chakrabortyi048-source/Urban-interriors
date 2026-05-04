@@ -226,6 +226,54 @@ class TestChangeCredentials:
         assert r3.status_code == 200
 
 
+# --------- Password change persistence regression ---------
+@_admin_skip
+class TestPasswordChangePersistence:
+    """Regression test for the bug where admin password changes were silently
+    reverted by seed_admin() on every backend restart. After a change-password,
+    the admin user MUST have `password_changed: True` persisted so no future
+    restart will clobber the new hash."""
+
+    def test_change_marks_password_changed_flag(self, api, admin_token):
+        h = {"Authorization": f"Bearer {admin_token}", "Content-Type": "application/json"}
+        # Rotate to a new password, verify it works, then rotate back.
+        temp_pw = f"TempRegressionPW_{uuid.uuid4().hex[:8]}@2026"
+        r = api.post(f"{BASE_URL}/api/admin/change-password",
+                     json={"current_password": ADMIN_PASSWORD, "new_password": temp_pw},
+                     headers=h)
+        assert r.status_code == 200, r.text
+
+        # New password logs in
+        r2 = api.post(f"{BASE_URL}/api/admin/login",
+                      json={"email": ADMIN_EMAIL, "password": temp_pw})
+        assert r2.status_code == 200
+
+        # Old .env password must NOT log in
+        r3 = api.post(f"{BASE_URL}/api/admin/login",
+                      json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
+        assert r3.status_code == 401
+
+        # password_changed flag is stamped in DB
+        client = MongoClient(MONGO_URL)
+        u = client[DB_NAME].users.find_one({"email": ADMIN_EMAIL}, {"_id": 0})
+        assert u is not None
+        assert u.get("password_changed") is True
+        assert u.get("password_changed_at")
+
+        # Revert — use the temp token returned by login
+        tok = r2.json()["access_token"]
+        h2 = {"Authorization": f"Bearer {tok}", "Content-Type": "application/json"}
+        r4 = api.post(f"{BASE_URL}/api/admin/change-password",
+                      json={"current_password": temp_pw, "new_password": ADMIN_PASSWORD},
+                      headers=h2)
+        assert r4.status_code == 200
+
+        # Original password logs in again
+        r5 = api.post(f"{BASE_URL}/api/admin/login",
+                      json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
+        assert r5.status_code == 200
+
+
 # --------- Portfolio CRUD ---------
 class TestPortfolioCRUD:
     def test_full_crud(self, api, auth_headers):
