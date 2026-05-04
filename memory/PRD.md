@@ -198,3 +198,13 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 3. Preview's miscategorised "Balcony Lounge" (using the living-room render WA0025.jpg) corrected to "Bright Living Room · Interior Design · Residential".
 
 Next backend restart anywhere (preview/production/fresh pod) auto-deletes stale rows; if collection becomes empty, re-seeds from the new 9-item default. 37/37 tests still pass.
+
+
+## Feb 2026 — Final Admin Dashboard QA Sweep (testing agent iteration_4)
+🟢 **Admin dashboard is production-ready. 0 critical issues, 0 frontend bugs, 0 integration issues, 37/37 backend tests passing.**
+
+Covered: login (valid + invalid + password eye-toggle + forgot-password), dashboard shell, all 5 sections (Overview / Portfolio / Testimonials / Inquiries / Settings), JWT refresh persistence, logout clears token, unauth-redirect guard, 0 console errors across the flow. Stats cards match backend (9 portfolio / 3 testimonials / 0 inquiries).
+
+**Hidden bug caught & fixed**: prior pytest runs' `TestLeadNotification` created an inquiry per run without cleanup — 5 `TEST_lead_*` rows had leaked into the live inquiries collection (which the owner would have seen as weird test-looking rows). Testing agent deleted them all, patched the test to self-clean, and verified the admin Recent-Enquiries widget is now clean.
+
+Polish deferred (no functional bug): additional data-testid attributes on some Settings / Testimonials / Inquiries form inputs.
