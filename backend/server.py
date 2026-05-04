@@ -806,26 +806,56 @@ async def admin_stats(user: dict = Depends(get_current_admin)):
 
 
 # ---------- Seed ----------
+# Each item uses images the Urban Interiors owner uploaded into the current
+# job's artifact bucket (job_aniket-interiors). The startup migration below
+# deletes any rows seeded from the OLD Fashion Interior session bucket
+# (job_4e352398-ef7d-4f99-8305-24b84c12ade6) so stale demo items can't survive
+# a rebrand.
+_OLD_SEED_BUCKET = "job_4e352398-ef7d-4f99-8305-24b84c12ade6"
+_OLD_SEED_TITLES = [
+    "Golden Floral Dining Suite",
+    "Rajarhat Living Lounge",
+    "Heritage Floral Drawing Room",
+    "Stone Accent Sunroom",
+    "Striped Canopy Showroom",
+]
+
 DEFAULT_PORTFOLIO = [
-    {"title": "Golden Floral Dining Suite", "category": "Wallpaper · Residential",
-     "description": "A moody, opulent dining room finished in our German-make gold floral wallpaper. Warm cove lighting and a curated mirror line make this small space read enormous.",
-     "image_url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/zh7h9lsp_Screenshot_2026-04-28_164511.jpg",
+    {"title": "U-Shape Modular Kitchen", "category": "Kitchen Renovation · Residential",
+     "description": "A compact U-shape modular kitchen with profile-lit shutters and quartz counters. Designed for a growing Chinar Park family.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/g68dku5u_IMG-20260501-WA0022.jpg",
      "aspect": "square"},
-    {"title": "Rajarhat Living Lounge", "category": "Wooden Flooring · Residential",
-     "description": "A 4BHK living lounge with herringbone wooden flooring, layered cove ceiling lighting and a custom TV unit panel. Calm, modern, family-first.",
-     "image_url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/o8oeed6y_Screenshot_2026-04-28_164526.jpg",
+    {"title": "Modular Kitchen Island", "category": "Kitchen Renovation · Residential",
+     "description": "Open-plan kitchen with a full island, warm wood handle-less units and integrated appliances. Perfect for hosting.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/b0q65frj_IMG-20260501-WA0021.jpg",
      "aspect": "square"},
-    {"title": "Heritage Floral Drawing Room", "category": "Customised Wallpaper · Residential",
-     "description": "Custom-printed striped damask wallpaper for a heritage-style drawing room. Soft daylight, ivory upholstery and a fireplace mantel.",
-     "image_url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/y6rspc66_Screenshot_2026-04-28_164551.jpg",
+    {"title": "Slat & Greenery Foyer", "category": "Interior Design · Feature Wall",
+     "description": "A vertical teak slat wall punctuated by live greenery — a calm, textural welcome into the home.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/1ix5f5nl_IMG-20260501-WA0023.jpg",
      "aspect": "square"},
-    {"title": "Stone Accent Sunroom", "category": "3D Panels · Residential",
-     "description": "Hand-laid PVC stone-clad accent wall in a glass sunroom. Texture, light and greenery treated as a single composition.",
-     "image_url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/epcwhole_Screenshot_2026-04-28_164540.jpg",
+    {"title": "L-Shaped Modular Kitchen", "category": "Kitchen Renovation · Residential",
+     "description": "L-shape modular kitchen paired with a tall fluted feature wall. Soft task lighting makes meal prep effortless.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/p36cxr5m_IMG-20260501-WA0024.jpg",
      "aspect": "square"},
-    {"title": "Striped Canopy Showroom", "category": "PVC Laminates · Commercial",
-     "description": "An in-progress showroom finish with a custom-curved striped canopy ceiling and book-matched marble columns. Statement architecture for retail.",
-     "image_url": "https://customer-assets.emergentagent.com/job_4e352398-ef7d-4f99-8305-24b84c12ade6/artifacts/rtmbdojk_Screenshot_2026-04-28_164557.jpg",
+    {"title": "Bright Living Room", "category": "Interior Design · Residential",
+     "description": "A sunlit Chinar Park living room finished in warm whites with layered ceiling coves, custom art and plush seating.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/9v7a5ior_IMG-20260501-WA0025.jpg",
+     "aspect": "square"},
+    {"title": "Slat-Wood TV Wall · Living Room", "category": "Bespoke Furniture · Residential",
+     "description": "Full-height slatted wood TV wall with integrated storage and ambient cove lighting. Warm, theatrical, grounded.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/huptrr6c_Screenshot_2026-04-30_175707.jpg",
+     "aspect": "square"},
+    {"title": "Warm Cove TV Unit", "category": "Bespoke Furniture · Residential",
+     "description": "Cove-lit entertainment wall finished in matte wood and warm brass trim. A mature, minimal take on the living-room focal point.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/r476hv2g_Screenshot_2026-04-30_175715.jpg",
+     "aspect": "square"},
+    {"title": "Master Bedroom with Headboard Wall", "category": "Bespoke Furniture · Residential",
+     "description": "A bespoke master bedroom: full upholstered headboard wall, built-in bedside niches and layered warm lighting.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/yppxknu8_Screenshot_2026-04-30_175809.jpg",
+     "aspect": "square"},
+    {"title": "Skyline Balcony Lounge", "category": "Bespoke Furniture · Outdoor",
+     "description": "An intimate balcony lounge with wooden decking, privacy screens and café-style string lights — a Kolkata skyline retreat.",
+     "image_url": "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/p5pfr4uz_Screenshot_2026-04-30_175814.jpg",
      "aspect": "square"},
 ]
 
@@ -952,6 +982,24 @@ async def seed_admin():
 
 
 async def seed_portfolio():
+    # Migration (idempotent): remove any portfolio rows left over from the
+    # pre-rebrand "Fashion Interior" default seed. These are identifiable
+    # unambiguously by either their image_url (old artifact bucket) or their
+    # canonical default title. Runs on every startup so existing deployments
+    # silently catch up.
+    migration_filter = {
+        "$or": [
+            {"image_url": {"$regex": _OLD_SEED_BUCKET}},
+            {"title": {"$in": _OLD_SEED_TITLES}},
+        ]
+    }
+    result = await db.portfolio.delete_many(migration_filter)
+    if result.deleted_count:
+        logger.info(
+            f"Migration: removed {result.deleted_count} stale Fashion Interior "
+            "portfolio rows (old seed bucket / canonical titles)."
+        )
+
     if await db.portfolio.count_documents({}) == 0:
         for idx, p in enumerate(DEFAULT_PORTFOLIO):
             await db.portfolio.insert_one({
@@ -960,7 +1008,7 @@ async def seed_portfolio():
                 "order": idx,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
-        logger.info("Seeded default portfolio")
+        logger.info(f"Seeded {len(DEFAULT_PORTFOLIO)} portfolio items from DEFAULT_PORTFOLIO")
 
 
 async def seed_testimonials():

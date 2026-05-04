@@ -187,3 +187,14 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 **Regression test added** (`TestPasswordChangePersistence`): full round-trip + DB flag assertion. Prevents reoccurrence.
 
 **Verified**: change → old fails, new succeeds → backend restart → new still succeeds, env default still fails. Original password restored. 37/37 tests pass.
+
+
+## Feb 2026 — Portfolio: Stale FI Defaults Cleaned Up
+**Issue**: Admin reported seeing "Golden Floral Dining Suite", "Rajarhat Living Lounge", "Heritage Floral Drawing Room", "Stone Accent Sunroom", "Striped Canopy Showroom" in the Portfolio Manager — leftover pre-rebrand Fashion Interior default seeds referencing the OLD `job_4e352398` artifact bucket.
+
+**Fix (`/app/backend/server.py`)**:
+1. `DEFAULT_PORTFOLIO` rewritten with the 9 real Urban Interiors catalog items from `job_aniket-interiors` bucket.
+2. Idempotent migration in `seed_portfolio()`: on every startup, deletes rows whose `image_url` matches the old bucket regex OR title matches one of 5 canonical stale titles. User-added projects untouched.
+3. Preview's miscategorised "Balcony Lounge" (using the living-room render WA0025.jpg) corrected to "Bright Living Room · Interior Design · Residential".
+
+Next backend restart anywhere (preview/production/fresh pod) auto-deletes stale rows; if collection becomes empty, re-seeds from the new 9-item default. 37/37 tests still pass.
