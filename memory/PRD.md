@@ -154,3 +154,20 @@ Seeded with neutral titles — owner will rename via admin dashboard.
 - Mobile: First Paint 192ms, FCP 192ms, DOMContentLoaded 388ms, Load 389ms.
 - Desktop: First Paint 448ms, FCP 448ms, DOMContentLoaded 553ms, Load 554ms.
 - Previously the loader alone blocked 2.2s. ~5× faster perceived load.
+
+
+## Feb 2026 — Per-Letter Sparkle + Native Arrow Cursor
+- **`GoldSprinkle` rewrote into per-letter mode**: on first view, walks every `.fi-glow-text` element and wraps each visible text character into `<span class="fi-glow-char">` (idempotent, skips existing `.fi-char` from typewriter). Handles lazy-loaded sections via 1.5s reinstrumentation interval.
+- On `mousemove`, computes distance from cursor to each character's bounding box and applies proximity-weighted glow via CSS custom property `--lit-intensity` (0..1). Letters within 70px radius get a graduated gold shadow; fade back smoothly via `transition: text-shadow 0.55s` when cursor leaves. Sparkle particles still spawn at cursor position (throttled 42ms).
+- **Custom gold cursor replaced with native OS arrow** per owner request. Removed cursor ring/dot rendering from `PremiumCursor.jsx` (now only renders the right-edge scroll rail). Legacy `CustomCursor.jsx` neutered to return `null`. All `html.fi-premium-cursor { cursor: none }` and `.fi-cursor-ring/.fi-cursor-dot` styles deleted.
+- Old whole-text `is-glowing` halo class retired; replaced by `fi-glow-char.is-lit` per-letter CSS.
+- **Stale test assertions updated** (`tests/backend_test.py`): `test_testimonials`, `test_business_info`, `test_index_html_has_seo` now match post-rebrand "Urban Interiors" (phone 8981230518, Chinar Park, 4.7 rating, 3 real reviews) instead of old "Fashion Interior" expectations.
+
+**Final deployment-readiness check:**
+- ESLint: 0 issues.
+- `yarn build`: Compiled successfully. 107 kB main + 11 lazy chunks. ~15 kB CSS gzipped.
+- Backend tests: **36/36 passing** (public + admin with `TEST_ADMIN_PASSWORD` env).
+- Supervisor: backend/frontend/mongodb all RUNNING.
+- Homepage HTTP 200 in ~228ms, API health 200, admin login returns valid JWT, robots.txt + sitemap.xml both 200.
+- Mobile FCP 192ms, Desktop FCP 448ms (unchanged from last optimisation pass).
+- Playwright: instrumented 24 headline chars, 2 lit at cursor, 0 page errors.

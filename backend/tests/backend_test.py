@@ -81,15 +81,19 @@ class TestPublic:
         r = api.get(f"{BASE_URL}/api/testimonials")
         assert r.status_code == 200
         data = r.json()
-        assert len(data) >= 25
-        assert all(t.get("rating") == 5 for t in data)
+        # Urban Interiors: 3 real Google reviews seeded; sync adds more over time
+        assert len(data) >= 3
+        # ratings are 1..5 ints
+        for t in data:
+            assert isinstance(t.get("rating"), int) and 1 <= t["rating"] <= 5
 
     def test_business_info(self, api):
         r = api.get(f"{BASE_URL}/api/business-info")
         assert r.status_code == 200
         d = r.json()
-        assert d["phone"] == "09007855295"
-        assert "Rajarhat" in d["address"]
+        # Urban Interiors phone (post-rebrand)
+        assert d["phone"] == "8981230518"
+        assert "Chinar" in d["address"] or "Newtown" in d["address"]
         assert d["hours"]
 
     def test_create_inquiry(self, api, mongo_db):
@@ -506,17 +510,18 @@ class TestSEO:
         r = requests.get(f"{BASE_URL}/", timeout=15)
         assert r.status_code == 200
         html = r.text
-        assert "<title>Fashion Interior" in html
+        assert "<title>Urban Interiors" in html
         assert 'name="description"' in html
         assert 'property="og:title"' in html
         assert 'property="og:image"' in html
         assert 'name="twitter:card"' in html
         assert 'application/ld+json' in html
         assert '"HomeAndConstructionBusiness"' in html
-        assert '+91-9007855295' in html
-        assert 'Rajarhat' in html
-        assert '09:15' in html and '20:30' in html
-        assert '"ratingValue": "5.0"' in html or '"ratingValue":"5.0"' in html or '"ratingValue": 5.0' in html
+        assert '+91-8981230518' in html
+        assert 'Chinar Park' in html or 'Newtown' in html
+        # 24-hour business
+        assert '00:00' in html and '23:59' in html
+        assert '"ratingValue": "4.7"' in html or '"ratingValue":"4.7"' in html or '"ratingValue": 4.7' in html
         assert 'hasOfferCatalog' in html
 
     def test_index_html_has_runtime_url_patch_script(self):
