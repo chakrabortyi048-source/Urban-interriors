@@ -208,3 +208,29 @@ Covered: login (valid + invalid + password eye-toggle + forgot-password), dashbo
 **Hidden bug caught & fixed**: prior pytest runs' `TestLeadNotification` created an inquiry per run without cleanup — 5 `TEST_lead_*` rows had leaked into the live inquiries collection (which the owner would have seen as weird test-looking rows). Testing agent deleted them all, patched the test to self-clean, and verified the admin Recent-Enquiries widget is now clean.
 
 Polish deferred (no functional bug): additional data-testid attributes on some Settings / Testimonials / Inquiries form inputs.
+
+
+## Feb 2026 — Deployment Readiness (Health Check)
+🟢 **PASS — Ready to redeploy.**
+
+**Just before deploying:**
+- Cleared `DEFAULT_TESTIMONIALS = []` (was still 25 stale FI rows that would have re-seeded immediately after the new migration deleted them).
+- Confirmed admin-created testimonials get `source='manual'` so the migration leaves them alone.
+
+**Health check results:**
+- Deployment agent: PASS, no findings/blockers. CORS = `*`, env-only URLs/secrets, MongoDB-only, supervisor config valid, no ML/blockchain deps, no .gitignore/.dockerignore blocks, queries projected/limited.
+- Services: backend / frontend / mongodb all RUNNING.
+- Backend startup log: 0 errors.
+- All public endpoints 200: `/api/`, `/api/portfolio`, `/api/testimonials`, `/api/business-info`, `/robots.txt`, `/sitemap.xml`.
+- Admin auth returns valid JWT.
+- Stats: 9 portfolio / 3 testimonials / 0 inquiries / 0 unread.
+- Frontend build: clean (`main.*.js` produced).
+- Backend tests: **37/37 passing**.
+- Frontend ESLint: clean.
+
+**Migrations that will run automatically on production deploy:**
+1. `seed_admin()` retroactive flag stamping — protects current production admin's password change from being clobbered.
+2. `seed_portfolio()` migration — deletes any portfolio rows from old `job_4e352398` bucket OR with the 5 canonical stale FI titles, then seeds the 9 real catalog items if collection becomes empty.
+3. `seed_testimonials()` migration — deletes any testimonial without a `google_fingerprint` and without `source='manual'` (i.e. removes the 25 old FI seed reviews), preserves real Google reviews + admin-added ones.
+
+The user reported seeing 26 stale testimonials + 9 inquiries on their production mobile. After redeploy, the 26 stale testimonials will be removed; the 9 inquiries are real customer leads and will be preserved.
