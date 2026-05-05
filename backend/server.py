@@ -736,6 +736,8 @@ async def admin_create_testimonial(payload: TestimonialIn, user: dict = Depends(
     doc = payload.model_dump()
     doc["id"] = str(uuid.uuid4())
     doc["order"] = count
+    # Mark as manually-added so the stale-seed migration never removes it.
+    doc.setdefault("source", "manual")
     await db.testimonials.insert_one(doc)
     return {k: v for k, v in doc.items() if k != "_id"}
 
@@ -860,58 +862,11 @@ DEFAULT_PORTFOLIO = [
 ]
 
 
-DEFAULT_TESTIMONIALS = [
-    {"name": "Dhritishikha Baishya", "rating": 5, "when": "a month ago", "is_local_guide": True, "review_count": 15,
-     "text": "We had a great and smooth experience in purchasing wallpapers and decor for our new house from the store. Aniket truly helped us in making the right choice and made our home walls so beautiful. The installation was done on time too! Keep up the work. Much recommended store!"},
-    {"name": "ankita Sethia", "rating": 5, "when": "6 months ago", "review_count": 5,
-     "text": "They have a wide variety of wallpapers and flooring. Recently got my space a makeover from them. Highly recommend !"},
-    {"name": "Abhijit Roy", "rating": 5, "when": "9 months ago", "is_local_guide": True, "review_count": 72,
-     "text": "I have done vinyl flooring with tiles from this shop. Owner Manoj ji is a very helpful person and explains details with care. I called the number given in his card and he arranged everything with labour and home delivery. I recommend this shop and will buy interior decoration items from him in future."},
-    {"name": "Abstract Interior", "rating": 5, "when": "8 months ago", "review_count": 1,
-     "text": "Excellent work support from fashion interior. Fully satisfied with their service. I always purchased wallpaper, blinds, louvers, customer wallpaper. They are very conscious with their work. Price is very reasonable. I always prefer to do work with them ❤️❤️"},
-    {"name": "Arunabha Bhattacharya", "rating": 5, "when": "a year ago", "is_local_guide": True, "review_count": 37,
-     "text": "I would like to thank fashion interior and Mr. Aniket for the wonderful service. I had ordered flutted panel from his showroom and he ensured to deliver it safely to my doorstep. He was got a wonderful collection of wallpapers, wall panels, laminates etc. Quality is good at a reasonable price."},
-    {"name": "Abhishek Toshniwal", "rating": 5, "when": "6 months ago", "review_count": 6,
-     "text": "I was thoroughly impressed by the warm and welcoming atmosphere. The owner's expertise and passion for design were evident in every aspect of the shop, from the beautifully curated collection to the stunning displays. What truly stood out, however, was the owner's exceptional customer service skills - they were attentive, knowledgeable, and genuinely interested in helping me find the perfect pieces for my home. Their soft and courteous demeanor made me feel at ease, and I appreciated their willingness to take the time to understand my needs and preferences. Overall, it was a delightful experience, and I highly recommend this shop to anyone looking for exceptional interior design solutions and outstanding customer service."},
-    {"name": "Aaheli Sikdar", "rating": 5, "when": "11 months ago", "review_count": 9,
-     "text": "This is my Third purchase from Fashion Interior. They have superb quality products and the behaviour of the owner and all other people are extremely polite. If you are looking for a genuine place for wallpapers and other interior stuffs then you must visit this place."},
-    {"name": "Birendra Barma", "rating": 5, "when": "4 months ago", "review_count": 1,
-     "text": "One of the most affordable collection of wallpapers, louvers, pvc flooring and blinds. Huge collection with ample of samples in Korean, german and Russian make in wallpapers. Must visit store near Chinar park for home and office makeovers"},
-    {"name": "Sujit Bhowmick", "rating": 5, "when": "2 months ago", "review_count": 1,
-     "text": "Best shop for blinds and pvc flooring, I do regular work of blinds and curtains, their service is commendable and very reasonable rates. Must recommend"},
-    {"name": "Madhavi Naidu Mazumdar", "rating": 5, "when": "a year ago", "is_local_guide": True, "review_count": 22,
-     "text": "Very Happy with the Services with uncompromised Quality Products. Special thanks to Ankit Ji and Manoj Ji for all their advice and cooperation. Will surely recommend Fashion Decor to all looking for quality and hassle free service with gardening beautification."},
-    {"name": "Shrilekha Mukherjee", "rating": 5, "when": "8 months ago", "review_count": 10,
-     "text": "They have helped me with the most efficient installation and great designs. Will surely come back for future projects"},
-    {"name": "zishan akhtar", "rating": 5, "when": "3 months ago", "is_local_guide": True, "review_count": 36,
-     "text": "Very professional and helpful conduct with good service and reasonable price."},
-    {"name": "Manas Das", "rating": 5, "when": "a year ago", "is_local_guide": True, "review_count": 246,
-     "text": "Great collection. Good behavior with a best price. Recommend to visit while you are renovate your house or an office."},
-    {"name": "Shreya Goenka", "rating": 5, "when": "8 months ago", "review_count": 6,
-     "text": "This is my 7th or 8th purchase with Fashion interiors (I have lost count :p) and Aniket ji has always been nothing but extremely helpful. From helping in the right selection of the wallpapers and flooring to ensuring no hassle in delivery and pasting, he ensures the process is smooth and the experience is delightful."},
-    {"name": "Loknath Agarwala", "rating": 5, "when": "11 months ago", "review_count": 1,
-     "text": "One of the best shops in the area, they have huge variety of wallpapers in all range including many interior related products, Mr Bhawsinghka is a true gentleman who personally assists with years of experience and knowledge, I will 100% recommend them as they are running this business since last 40 years."},
-    {"name": "Santosh Mohapatra", "rating": 5, "when": "5 months ago", "is_local_guide": True, "review_count": 64,
-     "text": "Very professional. Helps & guide like a family member. Work quality is very good."},
-    {"name": "Md Mahatab", "rating": 5, "when": "11 months ago", "review_count": 1,
-     "text": "Reasonable price and awesome wallpaper collection"},
-    {"name": "Abhishek Shaw", "rating": 5, "when": "a year ago", "review_count": 1,
-     "text": "Best shop in Chinar park rajarhat area, good variety collection of wallpapers, pvc flooring, customised wallpaper, blinds, louvers and many more. Prices are very reasonable compared to other shops nearby, great and calming behaviour of owner and staff. I took wallpaper for my home which was quickly installed hassle free. Thanks to manoj ji for help and great service."},
-    {"name": "M. Kumar", "rating": 5, "when": "11 months ago", "review_count": 2,
-     "text": "Nice work, He was got a wonderful collection of wallpapers, wall panels, laminates etc. Quality is good at a reasonable price. Mr. Aniket have wonderful service regarding above all of this.. Thanks"},
-    {"name": "Sneha Toshniwal", "rating": 5, "when": "6 months ago", "review_count": 5,
-     "text": "Amazing collection as per your preference ..in a very reasonable rate. do visit."},
-    {"name": "Ravi Kumar", "rating": 5, "when": "a year ago", "review_count": 9,
-     "text": "This interior design shop is conveniently located on the main road itself and it offers a great selection of stylish and high-quality décor..."},
-    {"name": "Aman Kumar Jaiswal", "rating": 5, "when": "2 months ago", "review_count": 2,
-     "text": "The quality of the product amazing, great service too."},
-    {"name": "Umesh Soni", "rating": 5, "when": "a year ago", "review_count": 4,
-     "text": "Very good collection and above that most decent behaviour."},
-    {"name": "Hansa Rungta", "rating": 5, "when": "2 years ago", "is_local_guide": True, "review_count": 6,
-     "text": "Very accommodating in all their deals. You may get the same product and rates elsewhere but with all guarantee, the service provided to us has been prompt, clear, free of false commitments. The owner is always there to own up his responsibility without any friction if anything goes wrong with the order or at site. Which is a very rare business trait among product suppliers in interior designing. Would suggest to go for Fashion Interior, if you need a clean and stress free purchase, installation and billing! For them service comes first."},
-    {"name": "soumya roy", "rating": 5, "when": "2 years ago", "review_count": 12,
-     "text": "Got my wallpaper and artificial turf from here and it's been a truly satisfying experience. Varied and exquisite collection at extremely reasonable price along with excellent customer service. Would highly recommend."},
-]
+# After the rebrand to Urban Interiors, real customer reviews are pulled
+# from Google Maps via the SerpAPI 12-hourly background sync. We no longer
+# auto-seed any fake testimonials. The startup migration in
+# seed_testimonials() removes any leftover Fashion Interior seed rows.
+DEFAULT_TESTIMONIALS: list = []
 
 
 async def seed_admin():
@@ -1012,7 +967,39 @@ async def seed_portfolio():
 
 
 async def seed_testimonials():
-    if await db.testimonials.count_documents({}) == 0:
+    # Migration (idempotent): remove stale pre-rebrand testimonial rows that
+    # were seeded from DEFAULT_TESTIMONIALS during the Fashion Interior era.
+    # Real customer reviews synced from Google via SerpAPI always carry a
+    # `google_fingerprint`; seeded rows never do. So any row WITHOUT a
+    # fingerprint is treated as stale seed data and removed. A manual
+    # testimonial added by the admin via the dashboard gets source='manual'
+    # and is preserved (see condition below).
+    migration_filter = {
+        "google_fingerprint": {"$in": [None, ""]},
+        "source": {"$ne": "manual"},
+    }
+    # Also match rows missing the fingerprint field entirely
+    result = await db.testimonials.delete_many({
+        "$and": [
+            {"source": {"$ne": "manual"}},
+            {"$or": [
+                {"google_fingerprint": {"$exists": False}},
+                {"google_fingerprint": None},
+                {"google_fingerprint": ""},
+            ]},
+        ]
+    })
+    if result.deleted_count:
+        logger.info(
+            f"Migration: removed {result.deleted_count} stale pre-rebrand "
+            "testimonials (no google_fingerprint, not manually added)."
+        )
+
+    # DEFAULT_TESTIMONIALS is intentionally empty after the rebrand — the
+    # public testimonials section pulls real reviews via the 12-hourly Google
+    # sync job. First boot of a brand-new DB will simply have an empty
+    # testimonials list until the sync runs.
+    if DEFAULT_TESTIMONIALS and await db.testimonials.count_documents({}) == 0:
         for idx, t in enumerate(DEFAULT_TESTIMONIALS):
             await db.testimonials.insert_one({
                 **t,
