@@ -234,3 +234,13 @@ Polish deferred (no functional bug): additional data-testid attributes on some S
 3. `seed_testimonials()` migration — deletes any testimonial without a `google_fingerprint` and without `source='manual'` (i.e. removes the 25 old FI seed reviews), preserves real Google reviews + admin-added ones.
 
 The user reported seeing 26 stale testimonials + 9 inquiries on their production mobile. After redeploy, the 26 stale testimonials will be removed; the 9 inquiries are real customer leads and will be preserved.
+
+
+## Feb 2026 — Code Review Pass #2 + Test Robustness
+Re-ran the same lint+complexity tool. All 32 hook-deps / index-as-key / console.error / localStorage / component-complexity items were either already correctly handled (`key={item.id}`, eslint-disable + rationale), false positives (Star icons / headline word arrays / static sequences), fix-of-prior-review (console.error replaced empty catch blocks per previous reviewer's ask), or already-deferred big-tickets (localStorage→cookies needs backend session-auth refactor; component splits risk regressions on freshly-shipped Hero/About + just-QA'd admin pages). No code changes applied.
+
+**Test-suite robustness fix (discovered while rechecking):**
+- Prior runs of `TestAdminEmailChange` + `TestPasswordChangePersistence` had left the live admin user in a broken state (email leaked to `indraneelchakraborty36@gmail.com`, password un-restorable). 4/37 tests failed intermittently.
+- Reset admin to documented `chakrabortyi048@gmail.com / FashionAdmin@2025`.
+- Added `/app/backend/tests/conftest.py` — session-scoped autouse fixture `restore_admin_state_after_session` snapshots admin email+password_hash+flags before the session and restores after, so no test or browser-based testing-agent run can lock out the next session.
+- 37/37 tests now consistently pass; admin auto-restored after every run.
