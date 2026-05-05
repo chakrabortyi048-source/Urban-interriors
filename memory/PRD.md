@@ -244,3 +244,13 @@ Re-ran the same lint+complexity tool. All 32 hook-deps / index-as-key / console.
 - Reset admin to documented `chakrabortyi048@gmail.com / FashionAdmin@2025`.
 - Added `/app/backend/tests/conftest.py` — session-scoped autouse fixture `restore_admin_state_after_session` snapshots admin email+password_hash+flags before the session and restores after, so no test or browser-based testing-agent run can lock out the next session.
 - 37/37 tests now consistently pass; admin auto-restored after every run.
+
+
+## Feb 2026 — CRITICAL: Custom Domain CORS Fix
+**Issue**: After switching production domain to `https://www.urbaninteriorsbyaaloy.com`, the public site loaded but Portfolio + Testimonials + Business-info sections were empty.
+
+**Root cause**: `/app/frontend/src/lib/api.js` had `withCredentials: true`. Backend CORS returns `Access-Control-Allow-Origin: *`. Browsers strictly reject credentials=true + wildcard ACAO on cross-origin, surfacing as `net::ERR_FAILED` on every API call. Preflight passed, actual GET rejected client-side.
+
+**Fix**: Set `withCredentials: false`. Auth flow unaffected — `get_current_admin` already supports both cookie + Bearer header; frontend uses Bearer via interceptor. Verified: preview loads all 9 portfolio tiles, 0 API failures.
+
+User must redeploy for fix to reach production.

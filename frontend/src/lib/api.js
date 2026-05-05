@@ -3,9 +3,15 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API_BASE = `${BACKEND_URL}/api`;
 
+// IMPORTANT: withCredentials must stay false because the public CORS policy
+// returns `Access-Control-Allow-Origin: *`. Browsers strictly refuse to attach
+// credentials to wildcard-CORS requests, which surfaces as a generic
+// `net::ERR_FAILED` and a blank Portfolio / Testimonials section after a
+// custom-domain switch. Auth still works because the JWT is sent in the
+// Authorization header (interceptor below), not cookies.
 export const api = axios.create({
   baseURL: API_BASE,
-  withCredentials: true,
+  withCredentials: false,
 });
 
 api.interceptors.request.use((config) => {
