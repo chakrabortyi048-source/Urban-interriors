@@ -254,3 +254,43 @@ Re-ran the same lint+complexity tool. All 32 hook-deps / index-as-key / console.
 **Fix**: Set `withCredentials: false`. Auth flow unaffected — `get_current_admin` already supports both cookie + Bearer header; frontend uses Bearer via interceptor. Verified: preview loads all 9 portfolio tiles, 0 API failures.
 
 User must redeploy for fix to reach production.
+
+
+## May 2026 — Full Visual Redesign (HomeLane / Damro / Pepperfry inspired)
+Per client feedback, the entire public site visual layer was rebuilt for a **minimal, whitespace-heavy, premium interior-brand aesthetic**.
+
+**Typography:**
+- Heading font: **Outfit** (sleek geometric sans, weights 400-700)
+- Body font: **Inter** (lightweight readable, weights 300-600)
+- Removed all decorative gold-shadow / gradient-text / serif-display styling
+
+**Palette (single accent, neutral base):**
+- Background: `#FAF9F6` (warm off-white)
+- Surface elevated: `#F3F2EC` (light beige for alternating sections)
+- Cards: `#FFFFFF` with `#E5E7EB` hairline borders
+- Text primary: `#1A1A1A`, secondary: `#52525B`, muted: `#A1A1AA`
+- **Single brand accent**: `#C85A40` (terracotta) + soft tint `rgba(200,90,64,0.08)`
+
+**Effects retired (now CSS no-ops so JSX doesn't break):**
+- All `fi-kenburns`, `fi-hero3d-*`, `fi-typewriter`, `fi-vert-cascade`, `fi-corner.*`, `fi-aurora-ripple`, `fi-halo-pulse`, `fi-glass-*`, `fi-gold-shine`, `fi-text-3d-*`, `fi-float3d-*` — animation:none + neutralised styling
+- `GoldSprinkle.jsx` neutered to `return null`
+- `fi-sparkle` particles hidden via `display:none`
+
+**Effects KEPT:**
+- Subtle scroll progress rail on the right edge (re-skinned terracotta)
+- Soft `fi-reveal` fade-up on intersection
+- Card hover image zoom (1.04 scale, 0.8s ease)
+
+**Components rewritten:**
+- `Hero.jsx` — split layout: text + bright living-room image, terracotta CTAs, trust strip (100+ / 10+ / 4.7★)
+- `About.jsx` — clean 2-col with dining-room image + 4 pillar cards
+- `Portfolio.jsx` — card grid with filter pills + clean lightbox
+- `Services.jsx` — 3-card grid with subtle category overlines
+- `WhyChooseUs.jsx` — 5-card minimal grid on warm beige background
+- `Testimonials.jsx` — clean 3-col card grid (replaced cinematic marquee)
+- `Contact.jsx` — bottom-border form fields, info card with branch addresses
+- `Footer.jsx` — re-skinned light beige with terracotta accents (was dark)
+- `Navbar.jsx` — light/glass blur on scroll, terracotta CTA (structure unchanged per client request)
+- `GoldSprinkle.jsx` / `PremiumCursor.jsx` — disabled; `PremiumCursor` still renders only the scroll rail
+
+**Verified:** ESLint clean, `yarn build` clean (107 kB main + 11 lazy chunks), 0 page errors at 1440px desktop and 390px mobile. All 9 portfolio items + 3 testimonials render with new aesthetic.

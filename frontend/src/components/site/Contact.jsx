@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { MapPin, Phone, Clock, MessageCircle, ArrowRight, Send, CheckCircle2 } from "lucide-react";
+import { MapPin, Phone, Clock, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { api, formatApiError } from "../../lib/api";
-import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 const SERVICES = [
   "Interior Painting",
@@ -15,25 +14,31 @@ const SERVICES = [
   "Other",
 ];
 
-function Field({ name, label, type = "text", value, onChange, required, ...rest }) {
-  const has = value && value.length > 0;
+function Field({ name, label, type = "text", value, onChange, required }) {
   return (
-    <div className={`fi-field ${has ? "has-value" : ""}`}>
-      <input
-        type={type}
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder=" "
-        data-testid={`contact-field-${name}`}
-        {...rest}
-      />
-      <label htmlFor={name}>
+    <div className="mb-5">
+      <label
+        htmlFor={name}
+        className="block mb-2 text-xs"
+        style={{
+          color: "var(--text-secondary)",
+          fontWeight: 500,
+          letterSpacing: "0.02em",
+        }}
+      >
         {label}
         {required && " *"}
       </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        data-testid={`contact-field-${name}`}
+        className="input-clean"
+      />
     </div>
   );
 }
@@ -52,6 +57,7 @@ export default function Contact() {
 
   useEffect(() => {
     api.get("/business-info").then((r) => setInfo(r.data)).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -84,28 +90,33 @@ export default function Contact() {
     <section
       id="contact"
       data-testid="contact-section"
-      className="relative py-24 md:py-32 lg:py-40"
-      style={{ background: "var(--fi-offwhite)" }}
+      className="relative py-20 md:py-28 lg:py-32 bg-[var(--bg-default)]"
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {/* Form */}
           <div>
-            <SpreadOverline text="Book a free consultation" style={{ color: "#CBA153" }} />
-            <SplitHeading
-              primary="Tell us about"
-              accent="your space."
-              className="font-serif-display mt-5"
+            <div className="overline mb-4 fi-reveal" style={{ color: "var(--accent)" }}>
+              Book a free consultation
+            </div>
+            <h2
+              className="font-display fi-reveal fi-reveal-delay-1"
               style={{
-                fontSize: "clamp(2.2rem, 5vw, 4rem)",
-                lineHeight: 1.05,
-                color: "#1A1A1A",
+                fontSize: "clamp(1.9rem, 4vw, 3rem)",
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                color: "var(--text-main)",
+                fontWeight: 500,
               }}
-              testId="contact-heading"
-            />
+              data-testid="contact-heading"
+            >
+              Tell us about
+              <br />
+              <span style={{ color: "var(--accent)" }}>your space.</span>
+            </h2>
             <p
-              className="mt-5 fi-reveal fi-reveal-delay-2 fi-glow-text"
-              style={{ color: "#3a3a3a", lineHeight: 1.7, maxWidth: "480px" }}
+              className="mt-5 fi-reveal fi-reveal-delay-2"
+              style={{ color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: "480px" }}
             >
               Drop a few lines below and we'll call you back at your preferred time.
               No commitments, no fees — just an honest conversation about your project.
@@ -114,208 +125,246 @@ export default function Contact() {
             {status.ok ? (
               <div
                 data-testid="contact-success"
-                className="mt-10 p-7 fi-reveal"
-                style={{ background: "#1A1A1A", color: "#F9F8F6", borderLeft: "2px solid #CBA153" }}
+                className="mt-10 p-8 card-minimal"
+                style={{ background: "var(--accent-soft)", borderColor: "var(--accent)" }}
               >
-                <CheckCircle2 size={28} style={{ color: "#CBA153" }} />
-                <h3 className="font-serif-display text-2xl mt-4">Thank you.</h3>
-                <p className="mt-3 text-sm" style={{ color: "rgba(249,248,246,0.7)", lineHeight: 1.7 }}>
-                  We've received your enquiry and will be in touch shortly. For anything
-                  urgent, please call us directly at {phone}.
-                </p>
-                <button
-                  onClick={() => setStatus({ loading: false, ok: false, error: "" })}
-                  className="btn-fi-gold mt-6"
-                  style={{ padding: "0.7rem 1.4rem", fontSize: "0.7rem" }}
-                  data-testid="contact-send-another"
+                <CheckCircle2 size={28} style={{ color: "var(--accent)" }} />
+                <div
+                  className="font-display mt-4"
+                  style={{ fontSize: "1.4rem", color: "var(--text-main)", fontWeight: 600 }}
                 >
-                  Send Another
-                </button>
+                  Thank you!
+                </div>
+                <p className="mt-3 text-sm" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                  We've received your enquiry. A member of our team will reach out within
+                  a working day to schedule your free consultation.
+                </p>
               </div>
             ) : (
-              <form onSubmit={submit} className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 fi-reveal fi-reveal-delay-3">
-                <Field name="name" label="Full Name" value={form.name} onChange={onChange} required />
-                <Field name="phone" label="Phone Number" value={form.phone} onChange={onChange} required />
-                <Field name="email" label="Email Address" type="email" value={form.email} onChange={onChange} required />
-                <div className={`fi-field ${form.service ? "has-value" : ""}`}>
+              <form
+                onSubmit={submit}
+                data-testid="contact-form"
+                className="mt-10 fi-reveal fi-reveal-delay-2"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
+                  <Field name="name" label="Full Name" value={form.name} onChange={onChange} required />
+                  <Field name="phone" label="Phone Number" value={form.phone} onChange={onChange} required />
+                </div>
+                <Field name="email" label="Email (optional)" type="email" value={form.email} onChange={onChange} />
+
+                <div className="mb-5">
+                  <label
+                    htmlFor="service"
+                    className="block mb-2 text-xs"
+                    style={{ color: "var(--text-secondary)", fontWeight: 500 }}
+                  >
+                    Service of Interest
+                  </label>
                   <select
                     id="service"
                     name="service"
                     value={form.service}
                     onChange={onChange}
                     data-testid="contact-field-service"
+                    className="input-clean"
                   >
-                    <option value=""></option>
+                    <option value="">— Select —</option>
                     {SERVICES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
+                      <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
-                  <label htmlFor="service">Service Interested In</label>
                 </div>
+
                 <Field
                   name="callback_time"
-                  label="Preferred Callback Time"
+                  label="Preferred Callback Time (optional)"
                   value={form.callback_time}
                   onChange={onChange}
-                  placeholder=" "
                 />
-                <div className={`fi-field md:col-span-2 ${form.message ? "has-value" : ""}`}>
+
+                <div className="mb-5">
+                  <label
+                    htmlFor="message"
+                    className="block mb-2 text-xs"
+                    style={{ color: "var(--text-secondary)", fontWeight: 500 }}
+                  >
+                    Tell us about your project
+                  </label>
                   <textarea
                     id="message"
                     name="message"
+                    rows={4}
                     value={form.message}
                     onChange={onChange}
-                    required
-                    placeholder=" "
                     data-testid="contact-field-message"
+                    className="textarea-clean"
                   />
-                  <label htmlFor="message">Tell us about your project *</label>
                 </div>
 
                 {status.error && (
                   <div
-                    className="md:col-span-2 text-sm"
-                    style={{ color: "#a33", padding: "0.6rem 0" }}
+                    className="mb-4 text-sm"
+                    style={{ color: "var(--accent)" }}
                     data-testid="contact-error"
                   >
                     {status.error}
                   </div>
                 )}
 
-                <div className="md:col-span-2 mt-2">
-                  <button
-                    type="submit"
-                    disabled={status.loading}
-                    className="btn-fi-dark"
-                    data-testid="contact-submit-btn"
-                  >
-                    {status.loading ? (
-                      <>
-                        <span className="fi-spin" /> Sending...
-                      </>
-                    ) : (
-                      <>
-                        Send Enquiry <Send size={14} />
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={status.loading}
+                  data-testid="contact-submit"
+                  className="btn-primary mt-2 disabled:opacity-60"
+                >
+                  {status.loading ? "Sending…" : "Request Callback"}
+                  <Send size={15} />
+                </button>
               </form>
             )}
           </div>
 
-          {/* Side: Address + Map */}
+          {/* Info */}
           <div className="fi-reveal fi-reveal-delay-2">
-            <div className="grid grid-cols-1 gap-5">
-              <div
-                className="p-7"
-                style={{ background: "#1A1A1A", color: "#F9F8F6" }}
-                data-testid="contact-info-card"
-              >
+            <div
+              className="card-minimal p-7 md:p-10"
+              data-testid="contact-info-card"
+            >
+              <div className="overline" style={{ color: "var(--accent)" }}>
+                Visit the Studio
+              </div>
+
+              <div className="mt-6 space-y-7">
                 <div className="flex items-start gap-4">
-                  <MapPin size={20} style={{ color: "#CBA153" }} />
+                  <MapPin
+                    size={20}
+                    strokeWidth={1.6}
+                    style={{ color: "var(--accent)", marginTop: 2 }}
+                  />
                   <div>
-                    <div className="overline" style={{ color: "#CBA153" }}>
-                      Visit Us
+                    <div
+                      className="text-xs uppercase mb-1"
+                      style={{
+                        color: "var(--text-muted)",
+                        letterSpacing: "0.15em",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Main Branch
                     </div>
-                    <p className="mt-2 text-sm" style={{ lineHeight: 1.7, color: "rgba(249,248,246,0.85)" }}>
+                    <div
+                      style={{
+                        color: "var(--text-main)",
+                        fontWeight: 500,
+                        lineHeight: 1.6,
+                      }}
+                      data-testid="contact-address"
+                    >
                       {address}
-                    </p>
-                    {secondaryAddress && (
-                      <p
-                        className="mt-3 text-sm"
-                        style={{ lineHeight: 1.7, color: "rgba(249,248,246,0.7)" }}
-                        data-testid="contact-secondary-address"
-                      >
-                        <span className="overline block mb-1" style={{ color: "#CBA153", fontSize: "0.6rem" }}>
-                          Branch
-                        </span>
-                        {secondaryAddress}
-                      </p>
-                    )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-4 mt-6">
-                  <Phone size={20} style={{ color: "#CBA153" }} />
+
+                {secondaryAddress && (
+                  <div className="flex items-start gap-4">
+                    <MapPin
+                      size={20}
+                      strokeWidth={1.6}
+                      style={{ color: "var(--accent)", marginTop: 2 }}
+                    />
+                    <div>
+                      <div
+                        className="text-xs uppercase mb-1"
+                        style={{
+                          color: "var(--text-muted)",
+                          letterSpacing: "0.15em",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Branch Office
+                      </div>
+                      <div
+                        style={{
+                          color: "var(--text-main)",
+                          fontWeight: 500,
+                          lineHeight: 1.6,
+                        }}
+                        data-testid="contact-secondary-address"
+                      >
+                        {secondaryAddress}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-start gap-4">
+                  <Phone
+                    size={20}
+                    strokeWidth={1.6}
+                    style={{ color: "var(--accent)", marginTop: 2 }}
+                  />
                   <div>
-                    <div className="overline" style={{ color: "#CBA153" }}>
-                      Call
+                    <div
+                      className="text-xs uppercase mb-1"
+                      style={{
+                        color: "var(--text-muted)",
+                        letterSpacing: "0.15em",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Call Us
                     </div>
                     <a
                       href={`tel:${phone}`}
-                      className="mt-2 block font-serif-display text-2xl"
-                      style={{ color: "#F9F8F6" }}
-                      data-testid="contact-phone-link"
+                      className="block hover:underline"
+                      style={{ color: "var(--text-main)", fontWeight: 500 }}
+                      data-testid="contact-phone"
                     >
                       {phone}
                     </a>
                   </div>
                 </div>
-                <div className="flex items-start gap-4 mt-6">
-                  <Clock size={20} style={{ color: "#CBA153" }} />
+
+                <div className="flex items-start gap-4">
+                  <Clock
+                    size={20}
+                    strokeWidth={1.6}
+                    style={{ color: "var(--accent)", marginTop: 2 }}
+                  />
                   <div>
-                    <div className="overline" style={{ color: "#CBA153" }}>
+                    <div
+                      className="text-xs uppercase mb-1"
+                      style={{
+                        color: "var(--text-muted)",
+                        letterSpacing: "0.15em",
+                        fontWeight: 500,
+                      }}
+                    >
                       Hours
                     </div>
-                    <p className="mt-2 text-sm" style={{ color: "rgba(249,248,246,0.85)" }}>
+                    <div style={{ color: "var(--text-main)", fontWeight: 500 }} data-testid="contact-hours">
                       {hours}
-                    </p>
+                    </div>
                   </div>
                 </div>
-                <a
-                  href={`https://wa.me/91${whatsapp.startsWith("0") ? whatsapp.slice(1) : whatsapp}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-fi-gold mt-7"
-                  style={{ padding: "0.85rem 1.6rem", fontSize: "0.7rem" }}
-                  data-testid="contact-whatsapp-link"
-                >
-                  WhatsApp Us <ArrowRight size={14} />
-                </a>
               </div>
 
-              <div
-                className="overflow-hidden"
-                style={{ aspectRatio: "16 / 11", border: "1px solid rgba(0,0,0,0.08)" }}
-                data-testid="contact-map"
-              >
-                <iframe
-                  title="Urban Interiors Map"
-                  src="https://www.google.com/maps?q=Urban+Interiors+by+Aaloy+Chinar+Park+Atghara+Kolkata&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, filter: "grayscale(0.2) contrast(1.05)" }}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
+              <div className="mt-8 pt-8" style={{ borderTop: "1px solid var(--border-light)" }}>
+                <a
+                  href={`https://wa.me/91${whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="contact-whatsapp"
+                  className="btn-outline w-full justify-center"
+                >
+                  <MessageCircle size={16} />
+                  Chat on WhatsApp
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Floating WhatsApp */}
-      <a
-        href={`https://wa.me/91${whatsapp.startsWith("0") ? whatsapp.slice(1) : whatsapp}`}
-        target="_blank"
-        rel="noreferrer"
-        data-testid="floating-whatsapp"
-        aria-label="Chat on WhatsApp"
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center"
-        style={{
-          width: 60,
-          height: 60,
-          background: "#25D366",
-          borderRadius: "50%",
-          boxShadow: "0 12px 30px rgba(37,211,102,0.45)",
-          color: "#fff",
-        }}
-      >
-        <MessageCircle size={26} />
-      </a>
     </section>
   );
 }

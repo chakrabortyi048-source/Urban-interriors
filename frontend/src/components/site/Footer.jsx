@@ -4,8 +4,10 @@ import { api } from "../../lib/api";
 
 export default function Footer() {
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     api.get("/business-info").then((r) => setInfo(r.data || {})).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const phone = info?.phone || "8981230518";
@@ -32,34 +34,54 @@ export default function Footer() {
   return (
     <footer
       data-testid="footer"
-      style={{ background: "#0e0e0e", color: "#F9F8F6" }}
-      className="pt-20 pb-10"
+      className="pt-16 pb-8"
+      style={{ background: "var(--bg-elevated)", color: "var(--text-main)" }}
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-14" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div
+          className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12"
+          style={{ borderBottom: "1px solid var(--border-light)" }}
+        >
           <div className="md:col-span-5">
             <div
-              className="font-serif-display"
-              style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.05 }}
+              className="font-display"
+              style={{
+                fontSize: "clamp(1.7rem, 3vw, 2.2rem)",
+                lineHeight: 1.1,
+                fontWeight: 600,
+              }}
             >
-              Urban <span style={{ color: "#CBA153" }}>Interiors</span>
+              Urban <span style={{ color: "var(--accent)" }}>Interiors</span>
             </div>
             <p
-              className="mt-5 max-w-md text-sm"
-              style={{ color: "rgba(249,248,246,0.6)", lineHeight: 1.8 }}
+              className="mt-4 max-w-md text-sm"
+              style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}
             >
               A Chinar Park interior studio for painting, bespoke furniture, flooring,
               and landscape design — turning houses into dream homes.
             </p>
-            <div className="flex items-center gap-3 mt-7">
+            <div className="flex items-center gap-2 mt-6">
               {info?.instagram && (
                 <a
                   href={info.instagram}
                   target="_blank"
                   rel="noreferrer"
                   data-testid="footer-instagram"
+                  aria-label="Instagram"
                   className="w-10 h-10 flex items-center justify-center transition-colors"
-                  style={{ border: "1px solid rgba(255,255,255,0.12)", color: "#F9F8F6" }}
+                  style={{
+                    border: "1px solid var(--border-light)",
+                    color: "var(--text-main)",
+                    borderRadius: "2px",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "var(--text-main)";
+                    e.currentTarget.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--text-main)";
+                  }}
                 >
                   <Instagram size={16} />
                 </a>
@@ -70,8 +92,13 @@ export default function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   data-testid="footer-facebook"
+                  aria-label="Facebook"
                   className="w-10 h-10 flex items-center justify-center"
-                  style={{ border: "1px solid rgba(255,255,255,0.12)", color: "#F9F8F6" }}
+                  style={{
+                    border: "1px solid var(--border-light)",
+                    color: "var(--text-main)",
+                    borderRadius: "2px",
+                  }}
                 >
                   <Facebook size={16} />
                 </a>
@@ -79,16 +106,36 @@ export default function Footer() {
               <a
                 href={`tel:${phone}`}
                 data-testid="footer-phone"
+                aria-label="Phone"
                 className="w-10 h-10 flex items-center justify-center"
-                style={{ border: "1px solid rgba(255,255,255,0.12)", color: "#F9F8F6" }}
+                style={{
+                  border: "1px solid var(--border-light)",
+                  color: "var(--text-main)",
+                  borderRadius: "2px",
+                }}
               >
                 <Phone size={16} />
               </a>
+              {info?.email && (
+                <a
+                  href={`mailto:${info.email}`}
+                  data-testid="footer-email"
+                  aria-label="Email"
+                  className="w-10 h-10 flex items-center justify-center"
+                  style={{
+                    border: "1px solid var(--border-light)",
+                    color: "var(--text-main)",
+                    borderRadius: "2px",
+                  }}
+                >
+                  <Mail size={16} />
+                </a>
+              )}
             </div>
           </div>
 
           <div className="md:col-span-3">
-            <div className="overline" style={{ color: "#CBA153" }}>
+            <div className="overline" style={{ color: "var(--text-muted)" }}>
               Quick Links
             </div>
             <ul className="mt-5 space-y-3">
@@ -97,8 +144,10 @@ export default function Footer() {
                   <button
                     onClick={() => go(l.id)}
                     data-testid={`footer-link-${l.id}`}
-                    className="text-sm flex items-center gap-1 hover:text-[#CBA153] transition-colors"
-                    style={{ color: "rgba(249,248,246,0.7)" }}
+                    className="text-sm flex items-center gap-1 transition-colors"
+                    style={{ color: "var(--text-secondary)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
                   >
                     {l.label} <ArrowUpRight size={12} />
                   </button>
@@ -108,12 +157,18 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-4">
-            <div className="overline" style={{ color: "#CBA153" }}>
+            <div className="overline" style={{ color: "var(--text-muted)" }}>
               Visit / Call / Hours
             </div>
-            <div className="mt-5 space-y-4 text-sm" style={{ color: "rgba(249,248,246,0.7)" }}>
+            <div
+              className="mt-5 space-y-4 text-sm"
+              style={{ color: "var(--text-secondary)" }}
+            >
               <div className="flex items-start gap-3">
-                <MapPin size={16} style={{ color: "#CBA153", flexShrink: 0, marginTop: 3 }} />
+                <MapPin
+                  size={16}
+                  style={{ color: "var(--accent)", flexShrink: 0, marginTop: 3 }}
+                />
                 <span style={{ lineHeight: 1.7 }}>{address}</span>
               </div>
               {secondaryAddress && (
@@ -121,11 +176,19 @@ export default function Footer() {
                   className="flex items-start gap-3"
                   data-testid="footer-secondary-address"
                 >
-                  <MapPin size={16} style={{ color: "#CBA153", flexShrink: 0, marginTop: 3, opacity: 0.6 }} />
+                  <MapPin
+                    size={16}
+                    style={{ color: "var(--accent)", flexShrink: 0, marginTop: 3, opacity: 0.6 }}
+                  />
                   <span style={{ lineHeight: 1.7 }}>
                     <span
-                      className="overline block"
-                      style={{ color: "#CBA153", fontSize: "0.55rem", marginBottom: 2 }}
+                      className="block text-xs uppercase"
+                      style={{
+                        color: "var(--text-muted)",
+                        letterSpacing: "0.15em",
+                        fontWeight: 500,
+                        marginBottom: 2,
+                      }}
                     >
                       Branch
                     </span>
@@ -134,22 +197,36 @@ export default function Footer() {
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <Phone size={16} style={{ color: "#CBA153" }} />
-                <a href={`tel:${phone}`} className="hover:text-white">
+                <Phone size={16} style={{ color: "var(--accent)" }} />
+                <a
+                  href={`tel:${phone}`}
+                  className="transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-main)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+                >
                   {phone}
                 </a>
               </div>
               <div className="flex items-center gap-3">
-                <Clock size={16} style={{ color: "#CBA153" }} />
+                <Clock size={16} style={{ color: "var(--accent)" }} />
                 <span>{hours}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="pt-7 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs" style={{ color: "rgba(249,248,246,0.5)" }}>
-          <div data-testid="footer-copy">© 2025 Urban Interiors. All Rights Reserved.</div>
-          <div className="overline" style={{ letterSpacing: "0.3em" }}>
+        <div
+          className="pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
+          <div data-testid="footer-copy">
+            © 2025 Urban Interiors. All Rights Reserved.
+          </div>
+          <div
+            className="uppercase"
+            style={{ letterSpacing: "0.25em", fontWeight: 500 }}
+          >
             Crafted in Kolkata
           </div>
         </div>

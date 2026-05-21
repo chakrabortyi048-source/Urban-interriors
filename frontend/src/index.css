@@ -2,70 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+/* ============================================================
+   Urban Interiors by Aaloy — Minimal Design System (May 2026)
+   Inspired by HomeLane / Damro / Pepperfry. Light, whitespace-
+   heavy, neutral palette with a single terracotta accent.
+   ============================================================ */
 
 :root {
-  --fi-charcoal: #161616;
-  --fi-charcoal-2: #1d1d1d;
-  --fi-offwhite: #F9F8F6;
-  --fi-offwhite-2: #f1efea;
-  --fi-text: #1A1A1A;
-  --fi-muted: #737373;
-  --fi-gold: #CBA153;
-  --fi-gold-soft: rgba(203, 161, 83, 0.2);
-  --fi-gold-glow: rgba(203, 161, 83, 0.35);
+  /* Brand palette */
+  --bg-default: #FAF9F6;          /* page background — warm off-white */
+  --bg-surface: #FFFFFF;           /* cards, modals */
+  --bg-elevated: #F3F2EC;          /* alternating sections */
+  --text-main: #1A1A1A;            /* headings, primary text */
+  --text-secondary: #52525B;       /* body text */
+  --text-muted: #A1A1AA;           /* captions, overlines */
+  --border-light: #E5E7EB;         /* hairlines, card borders */
+  --accent: #C85A40;               /* terracotta brand accent */
+  --accent-hover: #A94831;
+  --accent-soft: rgba(200, 90, 64, 0.08);
+
+  /* Backwards-compat aliases (kept so legacy markup keeps working
+     during the migration; tone is now neutral instead of gold) */
+  --fi-offwhite: var(--bg-default);
+  --fi-offwhite-2: var(--bg-elevated);
+  --fi-text: var(--text-main);
+  --fi-muted: var(--text-secondary);
+  --fi-charcoal: var(--text-main);
+  --fi-charcoal-2: #2A2A2A;
+  --fi-gold: var(--accent);
+  --fi-gold-soft: var(--accent-soft);
+  --fi-gold-glow: rgba(200, 90, 64, 0.15);
 }
 
 @layer base {
   :root {
-    --background: 36 22% 97%;
+    --background: 40 25% 97%;
     --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 39 51% 56%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 11 56% 52%;           /* terracotta */
+    --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary-foreground: 0 0% 10%;
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 39 51% 56%;
-    --accent-foreground: 0 0% 9%;
+    --muted-foreground: 240 5% 35%;
+    --accent: 11 56% 52%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 39 51% 56%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 36 22% 97%;
-    --card: 0 0% 11%;
-    --card-foreground: 36 22% 97%;
-    --popover: 0 0% 11%;
-    --popover-foreground: 36 22% 97%;
-    --primary: 39 51% 56%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 36 22% 97%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
-    --accent: 39 51% 56%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 39 51% 56%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 11 56% 52%;
+    --radius: 0.25rem;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -73,15 +68,15 @@
   }
   body {
     margin: 0;
-    background: var(--fi-offwhite);
-    color: var(--fi-text);
-    font-family: 'Inter', -apple-system, sans-serif;
-    font-weight: 300;
+    background: var(--bg-default);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
     overflow-x: hidden;
   }
   ::selection {
-    background: var(--fi-gold);
-    color: var(--fi-charcoal);
+    background: var(--accent);
+    color: #fff;
   }
 }
 
@@ -97,885 +92,331 @@ iframe[src*="emergent"][style*="position"] {
   pointer-events: none !important;
 }
 
-/* ===== Typography ===== */
-.font-serif-display {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 400;
+/* ============================================================
+   Typography utilities
+   ============================================================ */
+
+/* Headings — Outfit (sleek geometric sans, modern editorial) */
+.font-display,
+.font-serif-display { /* legacy alias */
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
+
 .font-sans-body {
   font-family: 'Inter', sans-serif;
 }
+
+/* Overline — small uppercase caption above headings */
 .overline {
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-/* ===== Scroll progress bar ===== */
-.fi-scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background: var(--fi-gold);
-  z-index: 100;
-  transform-origin: 0 50%;
-  box-shadow: 0 0 10px var(--fi-gold-glow);
-}
+/* ============================================================
+   Buttons — clean, solid OR outlined. No gradients. No glows.
+   ============================================================ */
 
-/* ===== Page loader ===== */
-.fi-loader {
-  position: fixed;
-  inset: 0;
-  background: var(--fi-charcoal);
-  z-index: 9999;
-  display: flex;
+.btn-primary,
+.btn-fi-gold {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.6rem;
+  padding: 0.85rem 1.6rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
-.fi-loader-text {
-  font-family: 'Playfair Display', serif;
-  color: var(--fi-offwhite);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  letter-spacing: 0.04em;
+.btn-primary:hover,
+.btn-fi-gold:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn-primary:active,
+.btn-fi-gold:active {
+  transform: translateY(1px);
+}
+
+.btn-outline,
+.btn-fi-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.6rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--text-main);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.btn-outline:hover,
+.btn-fi-ghost:hover {
+  background: var(--text-main);
+  color: #fff;
+}
+
+/* ============================================================
+   Cards & containers
+   ============================================================ */
+
+.card-minimal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  transition: border-color 0.25s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-minimal:hover {
+  border-color: var(--text-secondary);
+}
+
+/* Image hover container — clean subtle zoom */
+.img-zoom {
   overflow: hidden;
-  display: flex;
+  position: relative;
 }
-.fi-loader-text span {
-  display: inline-block;
-  transform: translateY(110%);
-  animation: fi-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.img-zoom img {
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fi-loader-line {
-  width: 1px;
-  height: 60px;
-  background: var(--fi-gold);
-  transform: scaleY(0);
-  transform-origin: top;
-  animation: fi-line 0.9s 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes fi-rise {
-  to { transform: translateY(0); }
-}
-@keyframes fi-line {
-  to { transform: scaleY(1); }
+.img-zoom:hover img {
+  transform: scale(1.05);
 }
 
-/* ===== Hero Ken Burns slow zoom ===== */
-@keyframes fi-kenburns {
-  0%   { transform: scale(1.02) translate3d(0,0,0); }
-  100% { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
-}
-.fi-kenburns {
-  animation: fi-kenburns 18s ease-out forwards;
-  will-change: transform;
+/* Subtle section divider — a single hairline */
+.divider-soft {
+  border: 0;
+  border-top: 1px solid var(--border-light);
+  margin: 0;
 }
 
-/* ===== Gold accent line sweep ===== */
-@keyframes fi-gold-sweep {
-  0%   { transform: scaleX(0); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: scaleX(1); opacity: 1; }
+/* Form inputs — bottom-border style (Homelane / Pepperfry forms) */
+.input-clean,
+.textarea-clean {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 2px;
+  padding: 0.9rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text-main);
+  transition: border-color 0.2s ease;
 }
-.fi-gold-sweep {
-  transform-origin: left center;
-  animation: fi-gold-sweep 1.4s 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+.input-clean:focus,
+.textarea-clean:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.input-clean::placeholder,
+.textarea-clean::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
-/* ===== About collage float ===== */
-@keyframes fi-float-soft {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
-}
-.fi-float-soft {
-  animation: fi-float-soft 6s ease-in-out infinite;
-}
+/* ============================================================
+   Motion — minimal. Opacity fade + small y translate.
+   ============================================================ */
 
-/* ===== 3D floating text (About hero) ===== */
-.fi-3d-stage {
-  perspective: 1400px;
-  transform-style: preserve-3d;
-}
-.fi-3d-layer {
-  transform-style: preserve-3d;
-  will-change: transform;
-  backface-visibility: hidden;
-}
-@keyframes fi-float3d-a {
-  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
-  50%      { transform: translate3d(0, -14px, 60px) rotateX(2deg) rotateY(-1.2deg); }
-}
-@keyframes fi-float3d-b {
-  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
-  50%      { transform: translate3d(-6px, -10px, 30px) rotateX(-1.5deg) rotateY(1.5deg); }
-}
-@keyframes fi-float3d-c {
-  0%, 100% { transform: translate3d(0, 0, 0) rotateY(0deg); }
-  50%      { transform: translate3d(8px, -7px, 20px) rotateY(-1deg); }
-}
-@keyframes fi-float3d-d {
-  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg); }
-  50%      { transform: translate3d(0, -6px, 15px) rotateX(1deg); }
-}
-.fi-float3d-a { animation: fi-float3d-a 7.5s ease-in-out infinite; }
-.fi-float3d-b { animation: fi-float3d-b 9.2s ease-in-out infinite; }
-.fi-float3d-c { animation: fi-float3d-c 11s ease-in-out infinite; }
-.fi-float3d-d { animation: fi-float3d-d 13s ease-in-out infinite; }
-
-/* 3D entrance for headings — comes from deep Z on intersection */
-.fi-3d-in {
+.fade-in {
   opacity: 0;
-  transform: translateZ(-200px) rotateX(-14deg) translateY(40px);
-  transition:
-    opacity 1.4s cubic-bezier(0.22,1,0.36,1),
-    transform 1.4s cubic-bezier(0.22,1,0.36,1);
+  transform: translateY(16px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fi-3d-in.in-view {
-  opacity: 1;
-  transform: translateZ(0) rotateX(0deg) translateY(0);
-}
-
-/* Gold text glow for 3D look */
-.fi-text-3d-glow {
-  text-shadow:
-    0 1px 0 rgba(255,255,255,0.15),
-    0 2px 12px rgba(0,0,0,0.55),
-    0 8px 32px rgba(0,0,0,0.55),
-    0 0 40px rgba(203,161,83,0.25);
-}
-.fi-text-3d-gold {
-  background: linear-gradient(180deg, #F5E0A8 0%, #CBA153 45%, #8F6F2E 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  text-shadow: 0 2px 30px rgba(203,161,83,0.35);
-}
-
-/* ===== Reveal animations ===== */
-.fi-reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fi-reveal.in-view {
+.fade-in.in-view {
   opacity: 1;
   transform: translateY(0);
 }
+.fade-in-delay-1 { transition-delay: 0.1s; }
+.fade-in-delay-2 { transition-delay: 0.2s; }
+.fade-in-delay-3 { transition-delay: 0.3s; }
+.fade-in-delay-4 { transition-delay: 0.4s; }
+
+/* ============================================================
+   Legacy class aliases — keep markup working but with new look.
+   These were the cinematic gold-era classes. They now just do a
+   simple fade-in so existing components don't break.
+   ============================================================ */
+
+.fi-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fi-reveal.in-view { opacity: 1; transform: translateY(0); }
 .fi-reveal-delay-1 { transition-delay: 0.1s; }
 .fi-reveal-delay-2 { transition-delay: 0.2s; }
 .fi-reveal-delay-3 { transition-delay: 0.3s; }
 .fi-reveal-delay-4 { transition-delay: 0.4s; }
-.fi-reveal-delay-5 { transition-delay: 0.5s; }
 
-/* ===== Hero word reveal ===== */
-.fi-hero-word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-}
-.fi-hero-word > span {
-  display: inline-block;
-  transform: translateY(110%);
-  animation: fi-rise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ===== Hero — Premium 3D word entrance ===== */
-@keyframes fi-hero-word-3d {
-  0% {
-    opacity: 0;
-    transform: translateY(120%) rotateX(-90deg) translateZ(-60px);
-    filter: blur(8px);
-  }
-  60% {
-    opacity: 1;
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotateX(0) translateZ(0);
-    filter: blur(0);
-  }
-}
-.fi-hero3d-stage {
-  perspective: 1600px;
-  transform-style: preserve-3d;
-}
-.fi-hero3d-word {
-  display: inline-block;
-  overflow: visible;
-  vertical-align: bottom;
-  transform-style: preserve-3d;
-  transform-origin: bottom center;
-}
-.fi-hero3d-word > span {
-  display: inline-block;
-  transform-origin: bottom center;
-  animation: fi-hero-word-3d 1.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  will-change: transform, opacity, filter;
-}
-
-/* Gold shimmer sweep across an element (for the accent word) */
-@keyframes fi-gold-shine {
-  0%   { background-position: -200% 50%; }
-  100% { background-position: 200% 50%; }
-}
-.fi-gold-shine {
-  background: linear-gradient(
-    100deg,
-    #CBA153 0%,
-    #CBA153 35%,
-    #FFE9B0 50%,
-    #CBA153 65%,
-    #CBA153 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: fi-gold-shine 3.6s linear infinite;
-  text-shadow: 0 0 30px rgba(203,161,83,0.35);
-}
-
-/* Char fade-in (typewriter-ish, smoother) */
-@keyframes fi-char-in {
-  0% { opacity: 0; transform: translateY(20px) rotateX(-30deg); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
-}
-.fi-typewriter > .fi-char {
-  display: inline-block;
-  animation: fi-char-in 0.7s cubic-bezier(0.22,1,0.36,1) backwards;
-}
-
-/* Vertical side text — letter cascade */
-@keyframes fi-letter-cascade {
-  0%   { opacity: 0; transform: translateY(-12px); filter: blur(3px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-.fi-vert-cascade > span {
-  display: inline-block;
-  animation: fi-letter-cascade 0.6s cubic-bezier(0.22,1,0.36,1) backwards;
-}
-
-/* Pulsing gold halo behind hero image */
-@keyframes fi-halo-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-  50% {
-    transform: scale(1.04);
-    opacity: 0.75;
-  }
-}
-.fi-halo-pulse {
-  animation: fi-halo-pulse 5.5s ease-in-out infinite;
-}
-
-/* Aurora ripple on button hover */
-@keyframes fi-aurora-ripple {
-  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
-  70%  { opacity: 0.25; }
-  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
-}
-.btn-fi-gold,
-.btn-fi-ghost {
-  position: relative;
-  overflow: hidden;
-}
-.btn-fi-gold::before,
-.btn-fi-ghost::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,233,176,0.7) 0%, rgba(203,161,83,0.0) 70%);
-  transform: translate(-50%, -50%) scale(0);
-  pointer-events: none;
-  opacity: 0;
-}
-.btn-fi-gold:hover::before,
-.btn-fi-ghost:hover::before {
-  animation: fi-aurora-ripple 0.9s ease-out;
-}
-
-/* Hero image gold corner brackets */
-.fi-corner {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border: 2px solid #CBA153;
-  pointer-events: none;
-  filter: drop-shadow(0 0 8px rgba(203,161,83,0.55));
-}
-.fi-corner.tl { top: -10px; left: -10px; border-right: none; border-bottom: none; }
-.fi-corner.tr { top: -10px; right: -10px; border-left: none; border-bottom: none; }
-.fi-corner.bl { bottom: -10px; left: -10px; border-right: none; border-top: none; }
-.fi-corner.br { bottom: -10px; right: -10px; border-left: none; border-top: none; }
-@keyframes fi-corner-in {
-  0% { opacity: 0; transform: scale(0.5); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.fi-corner {
-  animation: fi-corner-in 0.9s cubic-bezier(0.22,1,0.36,1) backwards;
-}
-
-/* ===== Split text — word mask reveal (premium) ===== */
+/* SplitHeading & CharReveal stay (still simple word-mask reveal),
+   but the heavy 3D versions are neutralised. */
 .fi-split { display: block; }
 .fi-split-word {
   display: inline-block;
   overflow: hidden;
   vertical-align: bottom;
   line-height: inherit;
-  padding-bottom: 0.12em;
-  margin-bottom: -0.12em;
+  padding-bottom: 0.05em;
+  margin-bottom: -0.05em;
 }
 .fi-split-word > span {
   display: inline-block;
-  transform: translateY(105%) skewY(6deg);
-  transition:
-    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  transform: translateY(105%);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fi-split.in-view .fi-split-word > span,
-.fi-split.fi-mask-on .fi-split-word > span {
-  transform: translateY(0) skewY(0);
-}
+.fi-split.in-view .fi-split-word > span { transform: translateY(0); }
 
-/* ===== Char-level fade for body paragraphs ===== */
 .fi-chars-reveal > .fi-char {
   display: inline-block;
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+  transform: translateY(6px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fi-chars-reveal.in-view > .fi-char {
-  opacity: 1;
-  transform: translateY(0);
-}
+.fi-chars-reveal.in-view > .fi-char { opacity: 1; transform: translateY(0); }
 
-/* ===== Overline letter spread reveal ===== */
 .fi-overline-spread {
   display: inline-block;
-  letter-spacing: 0;
-  opacity: 0;
-  transition: letter-spacing 1.4s cubic-bezier(0.22,1,0.36,1), opacity 0.9s ease;
-}
-.fi-overline-spread.in-view {
-  letter-spacing: 0.4em;
+  letter-spacing: 0.22em;
   opacity: 1;
 }
 
-/* ===== Underline shimmer (gold sweep on heading underlines) ===== */
-@keyframes fi-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.fi-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(203,161,83,0.0) 0%,
-    rgba(203,161,83,0.0) 35%,
-    rgba(233,197,122,1) 50%,
-    rgba(203,161,83,0.0) 65%,
-    rgba(203,161,83,0.0) 100%
-  );
-  background-size: 200% 100%;
-  animation: fi-shimmer 3.2s linear infinite;
+/* === Disabled cinematic classes (kept as no-op so JSX doesn't break) === */
+.fi-kenburns,
+.fi-hero3d-stage,
+.fi-3d-stage,
+.fi-3d-layer,
+.fi-3d-in,
+.fi-3d-in.in-view,
+.fi-hero3d-word,
+.fi-hero3d-word > span,
+.fi-float3d-a,
+.fi-float3d-b,
+.fi-float3d-c,
+.fi-float3d-d,
+.fi-float-soft,
+.fi-typewriter,
+.fi-typewriter > .fi-char,
+.fi-vert-cascade > span,
+.fi-halo-pulse,
+.fi-corner,
+.fi-corner.tl, .fi-corner.tr, .fi-corner.bl, .fi-corner.br,
+.fi-glow-text,
+.fi-glow-char,
+.fi-glow-char.is-lit,
+.fi-text-3d-glow,
+.fi-text-3d-gold,
+.fi-glass-dark,
+.fi-glass-light,
+.fi-glass-light-2,
+.fi-gold-shine,
+.fi-gold-sweep,
+.fi-shimmer,
+.fi-hero-word,
+.fi-hero-word > span,
+.fi-aurora-ripple {
+  animation: none !important;
+  /* keep visual layout but remove decorative styling */
 }
 
-/* ===== About — text-on-image glass cards ===== */
-.fi-glass-dark {
-  background: rgba(20, 20, 20, 0.62);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  border: 1px solid rgba(203,161,83,0.28);
-  color: #F5EFE2;
+/* Specifically neutralise old gold-text shadows */
+.fi-text-3d-glow { text-shadow: none !important; }
+.fi-text-3d-gold {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: var(--text-main) !important;
+  text-shadow: none !important;
 }
+.fi-glass-dark,
+.fi-glass-light,
 .fi-glass-light-2 {
-  background: rgba(252, 250, 244, 0.86);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  border: 1px solid rgba(203,161,83,0.35);
-  color: #1A1A1A;
+  background: var(--bg-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border-light) !important;
+  color: var(--text-main) !important;
 }
+.fi-corner { display: none !important; }
+.fi-gold-sweep,
+.fi-gold-shine,
+.fi-shimmer { display: none !important; }
+.fi-sparkle { display: none !important; }
 
-/* ===== Buttons ===== */
-.btn-fi-gold {
-  background: var(--fi-gold);
-  color: var(--fi-charcoal);
-  padding: 1rem 2rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.btn-fi-gold:hover {
-  background: var(--fi-charcoal);
-  color: var(--fi-gold);
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-}
-.btn-fi-ghost {
-  background: transparent;
-  color: var(--fi-offwhite);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 1rem 2rem;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.btn-fi-ghost:hover {
-  background: var(--fi-offwhite);
-  color: var(--fi-charcoal);
-  border-color: var(--fi-offwhite);
-}
-.btn-fi-dark {
-  background: var(--fi-charcoal);
-  color: var(--fi-offwhite);
-  padding: 0.95rem 1.8rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  cursor: pointer;
-}
-.btn-fi-dark:hover {
-  background: var(--fi-gold);
-  color: var(--fi-charcoal);
-}
+/* ============================================================
+   Scroll progress rail — KEPT (re-skinned terracotta)
+   ============================================================ */
 
-/* ===== Glass card ===== */
-.glass-dark {
-  background: rgba(29, 29, 29, 0.55);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(203, 161, 83, 0.18);
-}
-.glass-light {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* ===== Floating label inputs ===== */
-.fi-field {
-  position: relative;
-  width: 100%;
-}
-.fi-field input,
-.fi-field select,
-.fi-field textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  padding: 1.6rem 0 0.7rem 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: var(--fi-text);
-  outline: none;
-  border-radius: 0;
-  transition: border-color 0.3s ease;
-  font-weight: 300;
-}
-.fi-field textarea {
-  resize: vertical;
-  min-height: 110px;
-}
-.fi-field label {
-  position: absolute;
-  left: 0;
-  top: 1.5rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--fi-muted);
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fi-field input:focus + label,
-.fi-field select:focus + label,
-.fi-field textarea:focus + label,
-.fi-field input:not(:placeholder-shown) + label,
-.fi-field textarea:not(:placeholder-shown) + label,
-.fi-field.has-value label {
-  top: 0;
-  font-size: 0.65rem;
-  color: var(--fi-gold);
-}
-.fi-field input:focus,
-.fi-field select:focus,
-.fi-field textarea:focus {
-  border-bottom-color: var(--fi-gold);
-}
-
-/* ===== Service card ===== */
-.service-card {
-  position: relative;
-  background: var(--fi-offwhite);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 2.5rem 2rem;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-}
-.service-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 50%, rgba(203, 161, 83, 0.08) 100%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-.service-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--fi-gold);
-  box-shadow: 0 20px 50px -20px rgba(203, 161, 83, 0.4);
-}
-.service-card:hover::before {
-  opacity: 1;
-}
-.service-card .service-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(203, 161, 83, 0.3);
-  color: var(--fi-gold);
-  border-radius: 2px;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.service-card:hover .service-icon {
-  background: var(--fi-gold);
-  color: var(--fi-charcoal);
-  transform: rotate(-6deg);
-}
-
-/* ===== Portfolio image ===== */
-.portfolio-img-wrap {
-  overflow: hidden;
-  position: relative;
-}
-.portfolio-img-wrap img {
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.portfolio-img-wrap:hover img {
-  transform: scale(1.06);
-}
-.portfolio-img-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.portfolio-img-wrap:hover::after {
-  opacity: 1;
-}
-
-/* ===== Marquee ===== */
-@keyframes fi-marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.fi-marquee {
-  display: flex;
-  width: max-content;
-  animation: fi-marquee 60s linear infinite;
-}
-.fi-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* ===== Star ===== */
-.fi-star {
-  color: var(--fi-gold);
-  fill: var(--fi-gold);
-}
-
-/* ===== Hamburger mobile menu ===== */
-.fi-mobile-menu {
-  position: fixed;
-  inset: 0;
-  background: var(--fi-charcoal);
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  transform: translateY(-100%);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fi-mobile-menu.open {
-  transform: translateY(0);
-}
-.fi-mobile-menu a {
-  font-family: 'Playfair Display', serif;
-  color: var(--fi-offwhite);
-  font-size: 2rem;
-  text-decoration: none;
-  position: relative;
-}
-.fi-mobile-menu a:hover {
-  color: var(--fi-gold);
-}
-
-/* ===== Admin styles ===== */
-.admin-shell {
-  display: flex;
-  min-height: 100vh;
-  background: var(--fi-offwhite);
-}
-.admin-sidebar {
-  width: 260px;
-  background: var(--fi-charcoal);
-  color: var(--fi-offwhite);
-  padding: 2rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-.admin-content {
-  flex: 1;
-  padding: 2.5rem 3rem;
-  overflow-y: auto;
-}
-.admin-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  letter-spacing: 0.04em;
-  color: rgba(249, 248, 246, 0.7);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  text-decoration: none;
-}
-.admin-nav-item:hover {
-  color: var(--fi-offwhite);
-  background: rgba(255, 255, 255, 0.04);
-}
-.admin-nav-item.active {
-  color: var(--fi-charcoal);
-  background: var(--fi-gold);
-}
-@media (max-width: 900px) {
-  .admin-shell { flex-direction: column; }
-  .admin-sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 1rem;
-  }
-  .admin-content { padding: 1.25rem; }
-}
-
-/* No-scroll lock when mobile menu open */
-.no-scroll {
-  overflow: hidden;
-}
-
-/* Spinner */
-.fi-spin {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: var(--fi-gold);
-  border-radius: 50%;
-  animation: fi-spin 0.7s linear infinite;
-}
-@keyframes fi-spin {
-  to { transform: rotate(360deg); }
-}
-
-
-/* ================================================================
-   Premium scroll progress rail (custom cursor removed — native arrow
-   is used site-wide; sparkle effect still active via GoldSprinkle).
-   ================================================================ */
-
-/* Scroll-to-explore rail */
 .fi-scroll-rail {
   position: fixed;
   right: 22px;
   top: 50%;
   transform: translateY(-50%);
   width: 2px;
-  height: 220px;
-  z-index: 90;
+  height: 200px;
+  z-index: 60;
   pointer-events: none;
 }
 .fi-scroll-rail-track {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(203,161,83,0) 0%,
-    rgba(203,161,83,0.28) 15%,
-    rgba(203,161,83,0.28) 85%,
-    rgba(203,161,83,0) 100%
-  );
+  background: var(--border-light);
 }
 .fi-scroll-rail-fill {
   position: absolute;
-  left: -1.5px;
-  right: -1.5px;
+  left: 0;
+  right: 0;
   top: 0;
   bottom: 0;
-  background: linear-gradient(
-    180deg,
-    #E9C57A 0%,
-    #CBA153 60%,
-    #8F6F2E 100%
-  );
-  box-shadow: 0 0 12px rgba(203, 161, 83, 0.7);
-  width: 5px;
+  background: var(--accent);
   transform: scaleY(0);
   transform-origin: top center;
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  border-radius: 2px;
 }
 .fi-scroll-rail-label {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: calc(100% + 12px);
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   text-transform: uppercase;
   font-size: 0.62rem;
-  letter-spacing: 0.4em;
-  color: rgba(203, 161, 83, 0.75);
+  letter-spacing: 0.36em;
+  color: var(--text-muted);
   font-weight: 500;
   white-space: nowrap;
 }
-
-/* When premium cursor is ON: give interactive hover elements a subtle
-   sheen so users notice they are being "magnetized". */
-html.fi-premium-cursor a:hover,
-html.fi-premium-cursor button:hover,
-html.fi-premium-cursor [role="button"]:hover,
-html.fi-premium-cursor .cursor-pointer-fi:hover {
-  transition: filter 0.3s ease;
+@media (max-width: 768px) {
+  .fi-scroll-rail { display: none; }
 }
 
-/* Hide native focus ring around the premium cursor artifacts */
-.fi-scroll-rail:focus { outline: none; }
+/* ============================================================
+   Misc small helpers (kept from before)
+   ============================================================ */
 
-/* ================================================================
-   Gold sparkle sprinkle — PER-LETTER cursor-tracked glow
-   ================================================================ */
+.cursor-pointer-fi { cursor: pointer; }
+.portfolio-img-wrap { overflow: hidden; position: relative; }
+.portfolio-img-wrap img { transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.portfolio-img-wrap:hover img { transform: scale(1.04); }
 
-/* Sparkle particle */
-.fi-sparkle {
-  position: fixed;
-  pointer-events: none;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    #FFE9B0 0%,
-    #CBA153 55%,
-    rgba(203, 161, 83, 0) 70%
-  );
-  box-shadow:
-    0 0 6px rgba(255, 233, 176, 0.9),
-    0 0 16px rgba(203, 161, 83, 0.6),
-    0 0 30px rgba(203, 161, 83, 0.35);
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  animation-name: fi-sparkle-drift;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  animation-fill-mode: forwards;
-  will-change: transform, opacity;
-  mix-blend-mode: screen;
-}
-@keyframes fi-sparkle-drift {
-  0% {
-    transform: translate(-50%, -50%) scale(0.3);
-    opacity: 0;
-  }
-  18% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  70% { opacity: 0.85; }
-  100% {
-    transform:
-      translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -50px)))
-      scale(0.15);
-    opacity: 0;
-  }
-}
-
-/* Character span created by GoldSprinkle (or pre-existing .fi-char) */
-.fi-glow-char,
-.fi-glow-text .fi-char {
-  display: inline-block;
-  /* Smooth fade of glow in and out as cursor proximity changes */
-  transition:
-    color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    text-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Lit state — intensity is driven by --lit-intensity (0..1) set per character
-   by GoldSprinkle based on cursor proximity. */
-.fi-glow-char.is-lit,
-.fi-glow-text .fi-char.is-lit {
-  color: #FFE9B0;
-  text-shadow:
-    0 0 calc(6px * var(--lit-intensity, 1)) rgba(255, 246, 216, calc(0.95 * var(--lit-intensity, 1))),
-    0 0 calc(18px * var(--lit-intensity, 1)) rgba(233, 197, 122, calc(0.80 * var(--lit-intensity, 1))),
-    0 0 calc(36px * var(--lit-intensity, 1)) rgba(203, 161, 83, calc(0.55 * var(--lit-intensity, 1))),
-    0 0 calc(56px * var(--lit-intensity, 1)) rgba(203, 161, 83, calc(0.30 * var(--lit-intensity, 1)));
-  transform: translateY(calc(-2px * var(--lit-intensity, 1))) scale(calc(1 + 0.04 * var(--lit-intensity, 1)));
-}
-
-/* On touch / no-hover devices, disable the instrumentation hints visually */
-@media (hover: none), (pointer: coarse) {
-  .fi-glow-char.is-lit,
-  .fi-glow-text .fi-char.is-lit {
-    text-shadow: none;
-    color: inherit;
-    transform: none;
-  }
-  .fi-sparkle { display: none; }
-}
+/* Hide the legacy floating premium-cursor */
+.fi-cursor-ring,
+.fi-cursor-dot { display: none !important; }

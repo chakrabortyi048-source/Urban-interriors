@@ -1,208 +1,69 @@
-import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
 const HERO_IMG =
   "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/sxh3shl9_IMG-20260501-WA0025.jpg";
 
-const SUBTITLE =
-  "Your one-stop Chinar Park studio for interior painting, bespoke furniture, flooring, and captivating landscape designs — turning houses into dream homes.";
-
-const SIDE_TEXT = "PAINTING · FURNITURE · FLOORING · LANDSCAPE";
-
 export default function Hero() {
-  const [parallaxY, setParallaxY] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setParallaxY(y * 0.25);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   const go = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // headline split into words; "Story." rendered as gold-shine
-  const headline = ["Spaces", "That", "Tell", "Your", "Story."];
-
   return (
     <section
       id="hero"
       data-testid="hero-section"
-      className="relative min-h-screen w-full overflow-hidden fi-hero3d-stage"
-      style={{ background: "#0c0c0c" }}
+      className="relative w-full bg-[var(--bg-default)]"
     >
-      {/* ============== MOBILE BG (full-bleed image) ============== */}
-      <div
-        aria-hidden
-        className="md:hidden absolute inset-0"
-        style={{ transform: `translate3d(0, ${parallaxY}px, 0)` }}
-      >
-        <img
-          src={HERO_IMG}
-          alt=""
-          className="w-full h-full object-cover"
-          style={{ objectPosition: "center" }}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-        {/* Soft top-to-bottom dark gradient (only enough for legibility) */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,12,12,0.55) 0%, rgba(12,12,12,0.15) 30%, rgba(12,12,12,0.75) 100%)",
-          }}
-        />
-      </div>
-
-      {/* ============== DESKTOP background — soft warm gradient ============== */}
-      <div
-        aria-hidden
-        className="hidden md:block absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 25% 40%, rgba(60, 40, 25, 0.45) 0%, rgba(20, 16, 12, 0.95) 55%, #0a0a0a 100%)",
-        }}
-      />
-
-      {/* Decorative gold gradient accents (desktop) */}
-      <div
-        aria-hidden
-        className="hidden md:block absolute pointer-events-none"
-        style={{
-          top: "20%",
-          left: "-100px",
-          width: "300px",
-          height: "300px",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(203,161,83,0.18) 0%, rgba(203,161,83,0) 70%)",
-          filter: "blur(40px)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="hidden md:block absolute pointer-events-none"
-        style={{
-          bottom: "10%",
-          right: "10%",
-          width: "400px",
-          height: "400px",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(203,161,83,0.12) 0%, rgba(203,161,83,0) 70%)",
-          filter: "blur(50px)",
-        }}
-      />
-
-      {/* ============== CONTENT ============== */}
-      <div className="relative z-10 min-h-screen max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 py-24 md:py-0">
-        {/* DESKTOP: split grid; MOBILE: stacked */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 min-h-screen items-center">
-          {/* TEXT BLOCK */}
-          <div className="md:col-span-7 md:pr-6 lg:pr-12 order-2 md:order-1">
-            {/* Overline with letter-spread + glow */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 pt-28 md:pt-32 lg:pt-36 pb-16 md:pb-24 lg:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          {/* TEXT */}
+          <div className="lg:col-span-7 order-2 lg:order-1">
             <div
-              className="overline mb-7"
-              style={{
-                color: "#E9C57A",
-                animation: "fi-letter-cascade 0.9s 0.1s cubic-bezier(0.22,1,0.36,1) backwards",
-                textShadow: "0 0 20px rgba(203,161,83,0.4)",
-              }}
+              className="overline mb-5 fade-in in-view"
               data-testid="hero-overline"
             >
-              <span style={{ display: "inline-block", letterSpacing: "0.4em" }}>
-                Kolkata · Chinar Park
-              </span>
+              Urban Interiors · Chinar Park, Kolkata
             </div>
 
-            {/* Animated gold accent line */}
-            <div
-              className="fi-gold-sweep mb-6"
-              data-testid="hero-gold-accent"
-              style={{
-                height: "2px",
-                width: "clamp(80px, 12vw, 160px)",
-                background:
-                  "linear-gradient(90deg, rgba(203,161,83,0) 0%, #CBA153 30%, #FFE9B0 60%, #CBA153 100%)",
-                boxShadow: "0 0 24px rgba(203,161,83,0.55)",
-              }}
-            />
-
-            {/* HEADLINE — premium 3D word entrance */}
             <h1
-              className="font-serif-display text-white fi-glow-text"
+              className="font-display fade-in fade-in-delay-1 in-view"
               style={{
-                fontSize: "clamp(2.8rem, 7vw, 6.4rem)",
-                lineHeight: 1.02,
-                letterSpacing: "-0.02em",
-                textShadow:
-                  "0 4px 30px rgba(0,0,0,0.6), 0 0 60px rgba(0,0,0,0.4)",
+                fontSize: "clamp(2.4rem, 5.6vw, 4.6rem)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.025em",
+                color: "var(--text-main)",
+                fontWeight: 500,
               }}
               data-testid="hero-headline"
             >
-              {headline.map((w, i) => (
-                <span key={i} className="fi-hero3d-word mr-3">
-                  <span
-                    style={{
-                      animationDelay: `${0.35 + i * 0.16}s`,
-                    }}
-                  >
-                    {i === headline.length - 1 ? (
-                      <span className="fi-gold-shine" style={{ fontStyle: "italic" }}>
-                        {w}
-                      </span>
-                    ) : (
-                      w
-                    )}
-                  </span>
-                </span>
-              ))}
+              Spaces that tell
+              <br />
+              <span style={{ color: "var(--accent)" }}>your story.</span>
             </h1>
 
-            {/* SUBTITLE — char-by-char typewriter */}
             <p
-              className="mt-7 max-w-xl fi-typewriter fi-glow-text"
+              className="mt-6 max-w-xl fade-in fade-in-delay-2 in-view"
               style={{
                 fontSize: "1.05rem",
-                fontWeight: 300,
                 lineHeight: 1.7,
-                color: "rgba(249,248,246,0.82)",
-                textShadow: "0 1px 14px rgba(0,0,0,0.5)",
+                color: "var(--text-secondary)",
+                fontWeight: 400,
               }}
               data-testid="hero-subtitle"
             >
-              {Array.from(SUBTITLE).map((c, i) => (
-                <span
-                  key={i}
-                  className="fi-char"
-                  style={{
-                    animationDelay: `${1.4 + i * 0.012}s`,
-                    whiteSpace: c === " " ? "pre" : undefined,
-                  }}
-                >
-                  {c}
-                </span>
-              ))}
+              Your one-stop Chinar Park studio for interior painting, bespoke
+              furniture, flooring and landscape design — turning houses into
+              dream homes.
             </p>
 
-            {/* CTA buttons — staggered slide-in with aurora ripple on hover */}
             <div
-              className="mt-9 flex flex-wrap items-center gap-4"
-              style={{
-                animation: "fi-rise 0.9s 2.6s cubic-bezier(0.16,1,0.3,1) backwards",
-              }}
+              className="mt-9 flex flex-wrap items-center gap-4 fade-in fade-in-delay-3 in-view"
             >
               <button
                 onClick={() => go("portfolio")}
                 data-testid="hero-explore-btn"
-                className="btn-fi-gold"
+                className="btn-primary"
               >
                 Explore Our Work
                 <ArrowRight size={16} />
@@ -210,128 +71,82 @@ export default function Hero() {
               <button
                 onClick={() => go("contact")}
                 data-testid="hero-book-btn"
-                className="btn-fi-ghost"
+                className="btn-outline"
               >
                 Book a Free Consultation
               </button>
             </div>
+
+            {/* Trust strip */}
+            <div
+              className="mt-12 grid grid-cols-3 gap-6 max-w-md fade-in fade-in-delay-4 in-view"
+              data-testid="hero-trust-strip"
+            >
+              {[
+                ["100+", "Homes delivered"],
+                ["10+", "Years of craft"],
+                ["4.7★", "On Google"],
+              ].map(([n, l]) => (
+                <div key={l}>
+                  <div
+                    className="font-display"
+                    style={{
+                      fontSize: "1.6rem",
+                      color: "var(--text-main)",
+                      fontWeight: 600,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {n}
+                  </div>
+                  <div
+                    className="mt-2 text-xs"
+                    style={{ color: "var(--text-secondary)", lineHeight: 1.4 }}
+                  >
+                    {l}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* IMAGE BLOCK (DESKTOP ONLY — full image, brightness preserved) */}
-          <div className="hidden md:block md:col-span-5 order-1 md:order-2">
+          {/* IMAGE */}
+          <div
+            className="lg:col-span-5 order-1 lg:order-2 fade-in fade-in-delay-1 in-view"
+            data-testid="hero-image-frame"
+          >
             <div
-              className="relative mx-auto"
-              data-testid="hero-image-frame"
+              className="img-zoom"
               style={{
-                maxWidth: "min(520px, 100%)",
-                animation: "fi-rise 1.4s 0.4s cubic-bezier(0.16,1,0.3,1) backwards",
+                aspectRatio: "4 / 5",
+                background: "var(--bg-elevated)",
+                borderRadius: "4px",
+                overflow: "hidden",
               }}
             >
-              {/* Pulsing gold halo behind image */}
-              <div
-                aria-hidden
-                className="absolute inset-0 fi-halo-pulse pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 50% 50%, rgba(203,161,83,0.45) 0%, rgba(203,161,83,0) 70%)",
-                  transform: "scale(1.15)",
-                  filter: "blur(40px)",
-                }}
+              <img
+                src={HERO_IMG}
+                alt="Urban Interiors — bespoke living room project, Chinar Park, Kolkata"
+                className="w-full h-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                data-testid="hero-image"
               />
-
-              {/* Image card with corner brackets */}
-              <div
-                className="relative"
-                style={{
-                  aspectRatio: "712 / 1400",
-                  background: "#0c0c0c",
-                  boxShadow:
-                    "0 50px 100px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(203,161,83,0.18), 0 0 60px rgba(203,161,83,0.15)",
-                }}
-              >
-                <img
-                  src={HERO_IMG}
-                  alt="Urban Interiors — bespoke living room project, Chinar Park, Kolkata"
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                  fetchpriority="high"
-                  decoding="async"
-                  data-testid="hero-image"
-                />
-                {/* Subtle inner gold border */}
-                <div
-                  aria-hidden
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ boxShadow: "inset 0 0 0 1px rgba(203,161,83,0.25)" }}
-                />
-                {/* Gold corner brackets */}
-                <div className="fi-corner tl" style={{ animationDelay: "1.2s" }} />
-                <div className="fi-corner tr" style={{ animationDelay: "1.35s" }} />
-                <div className="fi-corner bl" style={{ animationDelay: "1.5s" }} />
-                <div className="fi-corner br" style={{ animationDelay: "1.65s" }} />
-              </div>
-
-              {/* Floating tag below image */}
-              <div
-                className="absolute -bottom-4 -right-4 px-4 py-2 fi-glass-dark"
-                style={{
-                  borderRadius: 2,
-                  borderLeft: "2px solid #CBA153",
-                  animation:
-                    "fi-rise 0.9s 1.8s cubic-bezier(0.16,1,0.3,1) backwards",
-                }}
-              >
-                <div
-                  className="overline"
-                  style={{
-                    color: "#E9C57A",
-                    fontSize: "0.62rem",
-                    letterSpacing: "0.32em",
-                  }}
-                >
-                  Recent Project · 2025
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <button
-          onClick={() => go("about")}
-          aria-label="Scroll down"
-          data-testid="hero-scroll-down"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 hover:text-white transition-colors"
-          style={{
-            animation: "fi-rise 0.9s 3s cubic-bezier(0.16,1,0.3,1) backwards",
-          }}
-        >
-          <ChevronDown size={28} className="animate-bounce" />
-        </button>
-
-        {/* Side vertical text — letter cascade */}
-        <div
-          className="hidden lg:block absolute right-6 top-1/2 -translate-y-1/2 z-20 fi-vert-cascade"
-          style={{
-            writingMode: "vertical-rl",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: "0.68rem",
-            letterSpacing: "0.4em",
-            textTransform: "uppercase",
-            fontWeight: 500,
-            textShadow: "0 1px 12px rgba(0,0,0,0.6)",
-          }}
-        >
-          {Array.from(SIDE_TEXT).map((c, i) => (
-            <span
-              key={i}
-              style={{
-                animationDelay: `${1.6 + i * 0.04}s`,
-              }}
-            >
-              {c}
-            </span>
-          ))}
+        <div className="flex justify-center mt-12 lg:mt-16">
+          <button
+            onClick={() => go("about")}
+            aria-label="Scroll down"
+            data-testid="hero-scroll-down"
+            className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+          >
+            <ChevronDown size={22} className="animate-bounce" />
+          </button>
         </div>
       </div>
     </section>
