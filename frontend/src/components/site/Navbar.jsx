@@ -37,10 +37,10 @@ export default function Navbar() {
         data-testid="navbar"
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: scrolled ? "rgba(255, 255, 255, 0.92)" : "transparent",
+          background: scrolled ? "rgba(12,12,12,0.78)" : "transparent",
           backdropFilter: scrolled ? "blur(14px)" : "none",
           WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
-          borderBottom: scrolled ? "1px solid var(--border-light)" : "1px solid transparent",
+          borderBottom: scrolled ? "1px solid rgba(203,161,83,0.18)" : "1px solid transparent",
         }}
       >
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 flex items-center justify-between h-20">
@@ -49,11 +49,9 @@ export default function Navbar() {
             data-testid="nav-logo"
             className="flex items-center gap-3 group"
           >
-            <span
-              className="font-display text-xl md:text-2xl"
-              style={{ color: "var(--text-main)", fontWeight: 600 }}
-            >
-              Urban <span style={{ color: "var(--accent)" }}>Interiors</span>
+            <span className="font-serif-display text-xl md:text-2xl"
+              style={{ color: "#F9F8F6" }}>
+              Urban <span style={{ color: "#CBA153", fontStyle: "italic" }}>Interiors</span>
             </span>
           </button>
 
@@ -64,9 +62,9 @@ export default function Navbar() {
                 data-testid={`nav-link-${l.id}`}
                 onClick={() => go(l.id)}
                 className="text-sm font-medium transition-colors duration-200"
-                style={{ color: "var(--text-secondary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+                style={{ color: "rgba(249,248,246,0.75)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#E9C57A")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(249,248,246,0.75)")}
               >
                 {l.label}
               </button>
@@ -74,7 +72,7 @@ export default function Navbar() {
             <button
               data-testid="nav-cta-book"
               onClick={() => go("contact")}
-              className="btn-primary"
+              className="btn-fi-gold"
               style={{ padding: "0.7rem 1.3rem", fontSize: "0.85rem" }}
             >
               Book Consultation
@@ -84,7 +82,7 @@ export default function Navbar() {
           <button
             data-testid="nav-hamburger"
             className="lg:hidden"
-            style={{ color: "var(--text-main)" }}
+            style={{ color: "#F9F8F6" }}
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
           >
@@ -93,12 +91,11 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       <div
         data-testid="mobile-menu"
         className="fixed inset-0 z-40 lg:hidden transition-all duration-300"
         style={{
-          background: "var(--bg-default)",
+          background: "#0c0c0c",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
         }}
@@ -109,8 +106,8 @@ export default function Navbar() {
               key={l.id}
               data-testid={`mobile-nav-link-${l.id}`}
               onClick={() => go(l.id)}
-              className="font-display text-2xl"
-              style={{ color: "var(--text-main)", fontWeight: 500 }}
+              className="font-serif-display text-2xl"
+              style={{ color: "#F9F8F6" }}
             >
               {l.label}
             </button>
@@ -118,7 +115,7 @@ export default function Navbar() {
           <button
             data-testid="mobile-nav-cta"
             onClick={() => go("contact")}
-            className="btn-primary mt-4"
+            className="btn-fi-gold mt-4"
           >
             Book Consultation
           </button>

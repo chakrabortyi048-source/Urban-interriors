@@ -1,4 +1,5 @@
 import { Palette, Hammer, Armchair } from "lucide-react";
+import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
 const services = [
   {
@@ -26,33 +27,24 @@ export default function Services() {
     <section
       id="services"
       data-testid="services-section"
-      className="relative py-20 md:py-28 lg:py-32 bg-[var(--bg-default)]"
+      style={{ background: "var(--fi-offwhite)" }}
+      className="relative py-24 md:py-32 lg:py-40"
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 md:mb-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
-            <div className="overline mb-4 fi-reveal" style={{ color: "var(--accent)" }}>
-              What We Do
-            </div>
-            <h2
-              className="font-display fi-reveal fi-reveal-delay-1"
-              style={{
-                fontSize: "clamp(1.9rem, 4vw, 3rem)",
-                lineHeight: 1.1,
-                letterSpacing: "-0.02em",
-                color: "var(--text-main)",
-                fontWeight: 500,
-              }}
-              data-testid="services-heading"
-            >
-              Three crafts.
-              <br />
-              <span style={{ color: "var(--accent)" }}>One studio.</span>
-            </h2>
+            <SpreadOverline text="What We Do" style={{ color: "#CBA153" }} />
+            <SplitHeading
+              primary="Three crafts."
+              accent="One studio."
+              className="font-serif-display mt-5"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05, color: "#1A1A1A" }}
+              testId="services-heading"
+            />
           </div>
           <p
-            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2"
-            style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
+            className="max-w-md text-sm md:text-base fi-reveal fi-reveal-delay-2 fi-glow-text"
+            style={{ color: "#3a3a3a", lineHeight: 1.7 }}
           >
             From a single feature wall to a turnkey home makeover, every service is
             sourced, supplied and finished by our own team — no middlemen, no surprises.
@@ -66,43 +58,30 @@ export default function Services() {
               <div
                 key={s.title}
                 data-testid={`service-card-${s.title.toLowerCase().replace(/\s+/g, "-")}`}
-                className="card-minimal fi-reveal p-8 md:p-10"
-                style={{ transitionDelay: `${i * 0.08}s` }}
+                className="p-8 md:p-10 fi-reveal transition-all duration-500"
+                style={{
+                  background: "#fff",
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  borderLeft: "2px solid #CBA153",
+                  transitionDelay: `${i * 0.08}s`,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 22px 50px -20px rgba(203,161,83,0.4)")}
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
               >
-                <div
-                  className="w-12 h-12 flex items-center justify-center"
-                  style={{
-                    background: "var(--accent-soft)",
-                    color: "var(--accent)",
-                    borderRadius: "2px",
-                  }}
-                >
-                  <Icon size={20} strokeWidth={1.6} />
+                <div className="w-12 h-12 flex items-center justify-center"
+                  style={{ background: "rgba(203,161,83,0.08)", color: "#CBA153", borderRadius: 2 }}>
+                  <Icon size={22} strokeWidth={1.5} />
                 </div>
-                <div className="overline mt-7" style={{ color: "var(--text-muted)" }}>
-                  {s.category}
-                </div>
-                <h3
-                  className="font-display mt-3"
-                  style={{
-                    fontSize: "1.45rem",
-                    color: "var(--text-main)",
-                    lineHeight: 1.25,
-                    fontWeight: 600,
-                  }}
-                >
+                <div className="overline mt-6" style={{ color: "#737373" }}>{s.category}</div>
+                <h3 className="font-serif-display mt-3"
+                  style={{ fontSize: "1.6rem", color: "#1A1A1A", lineHeight: 1.2 }}>
                   {s.title}
                 </h3>
-                <p
-                  className="mt-4 text-sm"
-                  style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}
-                >
+                <p className="mt-4 text-sm"
+                  style={{ color: "#3a3a3a", lineHeight: 1.7, fontWeight: 300 }}>
                   {s.desc}
                 </p>
-                <div
-                  className="mt-8 overline"
-                  style={{ color: "var(--accent)", fontSize: "0.65rem" }}
-                >
+                <div className="overline mt-8" style={{ color: "#CBA153", fontSize: "0.66rem" }}>
                   0{i + 1}
                 </div>
               </div>
