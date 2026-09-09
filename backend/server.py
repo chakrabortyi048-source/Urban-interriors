@@ -1022,6 +1022,11 @@ scheduler = AsyncIOScheduler()
 
 @app.on_event("startup")
 async def on_startup():
+    global client, db, gridfs, scheduler
+    client = AsyncIOMotorClient(MONGO_URL)
+    db = client[DB_NAME]
+    gridfs = AsyncIOMotorGridFSBucket(db, bucket_name="uploads")
+    scheduler = AsyncIOScheduler()
     await db.users.create_index("email", unique=True)
     await db.password_reset_tokens.create_index("expires_at", expireAfterSeconds=0)
     await db.portfolio.create_index("order")
