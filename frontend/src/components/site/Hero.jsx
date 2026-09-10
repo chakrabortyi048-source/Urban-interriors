@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
-const HERO_IMG =
-  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/sxh3shl9_IMG-20260501-WA0025.jpg";
+const HERO_IMG = "/design-images/sxh3shl9_IMG-20260501-WA0025.jpg";
 
 const SUBTITLE =
   "Your one-stop Chinar Park studio for interior painting, bespoke furniture, flooring, and captivating landscape designs — turning houses into dream homes.";
