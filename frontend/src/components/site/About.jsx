@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PaintRoller, Armchair, TreePine, Sprout } from "lucide-react";
 import SplitHeading, { SpreadOverline } from "./SplitHeading";
 
-const ABOUT_BG =
-  "https://customer-assets.emergentagent.com/job_aniket-interiors/artifacts/milhfp56_Screenshot_2026-04-30_175818.jpg";
+const ABOUT_BG = "/design-images/milhfp56_Screenshot_2026-04-30_175818.jpg";
 
 const PILLARS = [
   { icon: PaintRoller, label: "Interior Painting", desc: "Refreshing coats that set the mood." },
